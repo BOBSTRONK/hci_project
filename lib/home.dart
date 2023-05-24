@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton( //add button
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () => _onButtonPressed(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
@@ -100,6 +100,41 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
+    );
+  }
+
+  void _onButtonPressed() {
+    showModalBottomSheet(context: context, builder: (context) {
+      return Container(
+        color: Color(0xFF737373),
+        height: 120,
+        child: Container(
+          child: _buildBottomNavigationMenu(),
+          decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(10),
+              topRight: const Radius.circular(10),
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Column _buildBottomNavigationMenu() {
+    return Column(children: <Widget>[
+        ListTile(
+          leading: Icon(Icons.add),
+          title: Text('Add Beacon'),
+          onTap: (){},
+        ),
+        ListTile(
+          leading: Icon(Icons.bluetooth),
+          title: Text('io come Beacon'),
+          onTap: (){},
+        )
+      ],
     );
   }
 }
