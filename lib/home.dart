@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screen/chat.dart';
 import 'screen/dashboard.dart';
+import 'package:flutter_beacon/flutter_beacon.dart';
+import 'package:beacon_broadcast/beacon_broadcast.dart';
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -38,7 +41,7 @@ class _HomeState extends State<Home> {
         child: Container(
           height: 60,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               //left bluetooth
               Row(
@@ -46,6 +49,7 @@ class _HomeState extends State<Home> {
                 children: [
                   MaterialButton(
                     minWidth: 60,
+                    padding: EdgeInsets.only(right: 20),
                     onPressed: () {
                       setState(() {
                         currentScreen = Dashboard();
@@ -74,6 +78,7 @@ class _HomeState extends State<Home> {
                 children: [
                   MaterialButton(
                     minWidth: 60,
+                    padding: EdgeInsets.only(left: 40),
                     onPressed: () {
                       setState(() {
                         currentScreen = Chat();
@@ -106,15 +111,15 @@ class _HomeState extends State<Home> {
   void _onButtonPressed() {
     showModalBottomSheet(context: context, builder: (context) {
       return Container(
-        color: Color(0xFF737373),
+        color: const Color(0xFF737373),
         height: 120,
         child: Container(
           child: _buildBottomNavigationMenu(),
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(10),
-              topRight: const Radius.circular(10),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
             ),
           ),
         ),
@@ -136,5 +141,22 @@ class _HomeState extends State<Home> {
         )
       ],
     );
+  }
+
+  Future<void> checkForPermission() async{
+    try{
+      // if you want to manage manual checking about the required permissions
+      //await flutterBeacon.initializeScanning;
+
+      //if you want to include automatic checking permission
+      await flutterBeacon.initializeAndCheckScanning;
+    }on Exception catch (e){
+      // failed to initialize
+    }
+  }
+
+  Future<void> becomeBeacon() async{
+    
+
   }
 }

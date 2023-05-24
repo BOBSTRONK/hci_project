@@ -11,9 +11,9 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat')),
+      appBar: AppBar(title: const Text('History')),
       body: Center(
-        child: Text('Chat Screen', style: TextStyle(fontSize: 40),)),
+        child: Text('History Screen', style: TextStyle(fontSize: 40),)),
     );
   }
 }

@@ -5,6 +5,7 @@ void main() {
   runApp(const MyApp());
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -14,7 +15,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 68, 134, 233)),
+        textButtonTheme: TextButtonThemeData(style: ButtonStyle(foregroundColor: MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 68, 134, 233)))),
+        elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(foregroundColor: MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 68, 134, 233)))),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color.fromARGB(255, 68, 134, 233)),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Home(),
