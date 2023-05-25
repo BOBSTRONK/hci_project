@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hci_project/screen/onboarding_screen.dart';
 import 'home.dart';
 
 void main() {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color.fromARGB(255, 68, 134, 233)),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Home(),
+      home: OnBoardingScreen(),
     );
   }
 }
