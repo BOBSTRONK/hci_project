@@ -3,6 +3,7 @@ import 'package:hci_project/home.dart';
 import 'package:hci_project/intro_page/intro_page_1.dart';
 import 'package:hci_project/intro_page/intro_page_2.dart';
 import 'package:hci_project/intro_page/intro_page_3.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingScreen extends StatefulWidget {
@@ -46,26 +47,43 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   //skip
-                  onLastPage?Text(""):                  GestureDetector(
-                    onTap: () {
-                      _controller.jumpToPage(2);
-                    },
-                    child: Text("Skip"),
-                  ),
+                  onLastPage
+                      ? Text("")
+                      : GestureDetector(
+                          onTap: () {
+                            _controller.jumpToPage(2);
+                          },
+                          child: Text(
+                            "Skip",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
+                        ),
                   // dot indicator
                   SmoothPageIndicator(controller: _controller, count: 3),
 
                   //next or done
                   onLastPage
                       ? GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             //Navigator.push to the home page
+                            await setOnboardingCompleted();
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
                               return Home();
                             }));
                           },
-                          child: Text("Done"),
+                          child: Text(
+                            "Done",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         )
                       : GestureDetector(
                           onTap: () {
@@ -74,7 +92,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               curve: Curves.easeIn,
                             );
                           },
-                          child: Text("Next"),
+                          child: Text(
+                            "Next",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         ),
                 ],
               ))
@@ -82,4 +107,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       ),
     );
   }
+}
+
+Future<void> setOnboardingCompleted() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('onboardingCompleted', true);
 }

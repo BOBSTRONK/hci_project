@@ -157,7 +157,7 @@ class _HomeState extends State<Home> {
         ),
         ListTile(
           leading: Icon(Icons.bluetooth),
-          title: Text('io come Beacon'),
+          title: Text('Enable Phone As Beacon'),
           onTap: () {},
         )
       ],
