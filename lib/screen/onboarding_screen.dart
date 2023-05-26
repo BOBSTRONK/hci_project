@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hci_project/home.dart';
-import 'package:hci_project/intro_page/intro_page_1.dart';
-import 'package:hci_project/intro_page/intro_page_2.dart';
-import 'package:hci_project/intro_page/intro_page_3.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../home.dart';
+import 'intro_page/intro_page_1.dart';
+import 'intro_page/intro_page_2.dart';
+import 'intro_page/intro_page_3.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   const OnBoardingScreen({super.key});
@@ -53,14 +52,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           onTap: () {
                             _controller.jumpToPage(2);
                           },
-                          child: Text(
-                            "Skip",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
+                          child: Text("Skip"),
                         ),
                   // dot indicator
                   SmoothPageIndicator(controller: _controller, count: 3),
@@ -68,22 +60,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   //next or done
                   onLastPage
                       ? GestureDetector(
-                          onTap: () async {
+                          onTap: () {
                             //Navigator.push to the home page
-                            await setOnboardingCompleted();
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
                               return Home();
                             }));
                           },
-                          child: Text(
-                            "Done",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
+                          child: Text("Done"),
                         )
                       : GestureDetector(
                           onTap: () {
@@ -92,14 +76,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               curve: Curves.easeIn,
                             );
                           },
-                          child: Text(
-                            "Next",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
+                          child: Text("Next"),
                         ),
                 ],
               ))
@@ -107,9 +84,4 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       ),
     );
   }
-}
-
-Future<void> setOnboardingCompleted() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('onboardingCompleted', true);
 }

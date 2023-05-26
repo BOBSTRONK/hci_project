@@ -1,6 +1,6 @@
+import 'package:BeaconGuard/screen/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:hci_project/screen/onboarding_screen.dart';
 import 'home.dart';
 
 void main() {

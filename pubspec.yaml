@@ -1,4 +1,4 @@
-name: hci_project
+name: BeaconGuard
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   smooth_page_indicator: ^1.0.0
   shared_preferences: ^2.0.12
+  provider: ^6.0.1
 
 dev_dependencies:
   flutter_test:
