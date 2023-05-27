@@ -4,14 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 
-class BeaconPageNotifier extends ChangeNotifier{
-  BeaconPageNotifier(){
+class BeaconPageNotifier extends ChangeNotifier {
+  BeaconPageNotifier() {
     startScanningBeacon();
   }
   bool loading = false;
   List<Beacon> scannedBeacons = <Beacon>[];
+  bool isPaused = false;
+  List<bool> isCheckd = <bool>[];
   late StreamSubscription<RangingResult> _streamRanging;
-   Future<void> InitBeaconPermission() async {
+  Future<void> InitBeaconPermission() async {
     try {
       // if you want to manage manual checking about the required permissions
       //await flutterBeacon.initializeScanning;
@@ -23,12 +25,23 @@ class BeaconPageNotifier extends ChangeNotifier{
     }
   }
 
-  void stopScanning()async{
+  @override
+  void dispose() {
+    // TODO: implement dispose
     _streamRanging.cancel();
   }
 
+  void pauseScanning(){
+    _streamRanging.pause();
+    Timer.periodic(Duration(seconds: 10), (timer) {
+      _streamRanging.resume();
+      timer.cancel();
+     });
+  }
+
+
   Future<void> startScanningBeacon() async {
-    loading =true;
+    loading = true;
     final regions = <Region>[];
     List<Beacon> BeaconScanned = <Beacon>[];
 
@@ -47,12 +60,12 @@ class BeaconPageNotifier extends ChangeNotifier{
         flutterBeacon.ranging(regions).listen((RangingResult result) {
       // result contains a region and list of beacons found
       // list can be empty if no matching beacons were found in range
-      print("result of beacons: ${result.beacons}");
-      print("Regions: ${result.region}");
-      BeaconScanned = result.beacons;
-      scannedBeacons = BeaconScanned;
-      loading=false;
-      notifyListeners();
+        print("result of beacons: ${result.beacons}");
+        print("Regions: ${result.region}");
+        BeaconScanned = result.beacons;
+        scannedBeacons = BeaconScanned;
+        loading = false;
+        notifyListeners();
     });
   }
 }

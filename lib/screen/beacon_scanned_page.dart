@@ -16,6 +16,7 @@ class BeaconScannedPage extends StatefulWidget {
 class _BeaconScannedPageState extends State<BeaconScannedPage> {
   double? _deviceHeight, _deviceWidth;
   BeaconPageNotifier? _beaconPageNotifier;
+  List<bool> _isChecked = <bool>[];
 
   Widget _buildUI() {
     _deviceHeight = MediaQuery.of(context).size.height;
@@ -34,48 +35,71 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
         body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
       }
-      return AlertDialog(
-        title: Text("Scanned Beacons"),
-        actions: [],
-        content: SizedBox(
-            width: _deviceWidth! * 0.7,
-            height: _deviceHeight! * 0.7,
-            child: body),
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            title: Text("Scanned Beacons"),
+            actions: <Widget>[
+              TextButton(onPressed: () async {
+                print(_isChecked);
+              }, child: Text("not ok")),
+              TextButton(
+                  onPressed: () {
+                    _beaconPageNotifier!.dispose();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Cancel")),
+            ],
+            content: SizedBox(
+                width: _deviceWidth! * 0.8,
+                height: _deviceHeight! * 0.5,
+                child: body),
+          );
+        },
       );
     });
   }
 
   Widget buildListOfBeacons(List<Beacon> beacons) {
-    return ListView.separated(
-        padding: const EdgeInsets.only(top: 20, right: 16),
-        separatorBuilder: (_, __) => const Divider(),
-        itemCount: _beaconPageNotifier!.scannedBeacons.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _beaconItem(beacons[index]);
-        });
-  }
-
-  Widget _beaconItem(Beacon beacon) {
-    return Card(
-      child: ListTile(
-        leading: const CircleAvatar(
-          backgroundColor: Colors.transparent,
-          backgroundImage: AssetImage("images/Beacon+Synergy.png"),
-        ),
-        title: Text(beacon.proximityUUID),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text("Major:${beacon.major.toString()}"),
-                Text("Minor:${beacon.major.toString()}")
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+    _isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+      return ListView.separated(
+          padding: const EdgeInsets.only(top: 20, right: 16),
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: _beaconPageNotifier!.scannedBeacons.length,
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+              onTap: () {
+                _beaconPageNotifier!.pauseScanning();
+              },
+              child: Card(
+                child: CheckboxListTile(
+                  onChanged: (value) {
+                    setState(() {
+                      _isChecked[index] = value!;
+                      _beaconPageNotifier!.pauseScanning();
+                    });
+                  },
+                  value: _isChecked[index],
+                  secondary: const CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: AssetImage("images/Beacon+Synergy.png"),
+                  ),
+                  title: Text(beacons[index].proximityUUID),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Major:${beacons[index].major.toString()}"),
+                      Text("Minor:${beacons[index].minor.toString()}"),
+                      Text("Distance:${beacons[index].accuracy} M")
+                    ],
+                  ),
+                ),
+              ),
+            );
+          });
+    });
   }
 
   @override
