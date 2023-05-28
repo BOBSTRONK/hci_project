@@ -153,9 +153,10 @@ class _HomeState extends State<Home> {
           leading: Icon(Icons.add),
           title: Text('Add Beacon'),
           onTap: () {
-            showDialog(context: context, builder: (BuildContext context){
-              return BeaconScannedPage();
-            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+            );
           },
         ),
         ListTile(

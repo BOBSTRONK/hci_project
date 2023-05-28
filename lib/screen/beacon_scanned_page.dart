@@ -7,20 +7,17 @@ import 'package:flutter_beacon/flutter_beacon.dart';
 import '../service/beacon_scan_page_notifier.dart';
 
 class BeaconScannedPage extends StatefulWidget {
-  const BeaconScannedPage({super.key});
+  const BeaconScannedPage({Key? key}) : super(key: key);
 
   @override
   State<BeaconScannedPage> createState() => _BeaconScannedPageState();
 }
 
 class _BeaconScannedPageState extends State<BeaconScannedPage> {
-  double? _deviceHeight, _deviceWidth;
   BeaconPageNotifier? _beaconPageNotifier;
   List<bool> _isChecked = <bool>[];
 
   Widget _buildUI() {
-    _deviceHeight = MediaQuery.of(context).size.height;
-    _deviceWidth = MediaQuery.of(context).size.width;
     return Builder(builder: (context) {
       _beaconPageNotifier = context.watch<BeaconPageNotifier>();
       Widget? body;
@@ -35,71 +32,67 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
         body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
       }
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: Text("Scanned Beacons"),
-            actions: <Widget>[
-              TextButton(onPressed: () async {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Scanned Beacons"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
                 print(_isChecked);
-              }, child: Text("not ok")),
-              TextButton(
-                  onPressed: () {
-                    _beaconPageNotifier!.dispose();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Cancel")),
-            ],
-            content: SizedBox(
-                width: _deviceWidth! * 0.8,
-                height: _deviceHeight! * 0.5,
-                child: body),
-          );
-        },
+              },
+              child: Text("not ok"),
+            ),
+            TextButton(
+              onPressed: () {
+                _beaconPageNotifier!.dispose();
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        ),
       );
     });
   }
 
   Widget buildListOfBeacons(List<Beacon> beacons) {
     _isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
-    return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-      return ListView.separated(
-          padding: const EdgeInsets.only(top: 20, right: 16),
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: _beaconPageNotifier!.scannedBeacons.length,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              onTap: () {
-                _beaconPageNotifier!.pauseScanning();
+    return ListView.separated(
+      padding: const EdgeInsets.only(top: 20, right: 16),
+      separatorBuilder: (_, __) => const Divider(),
+      itemCount: _beaconPageNotifier!.scannedBeacons.length,
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () {
+            _beaconPageNotifier!.pauseScanning();
+          },
+          child: Card(
+            child: CheckboxListTile(
+              onChanged: (value) {
+                setState(() {
+                  _isChecked[index] = value!;
+                  _beaconPageNotifier!.pauseScanning();
+                });
               },
-              child: Card(
-                child: CheckboxListTile(
-                  onChanged: (value) {
-                    setState(() {
-                      _isChecked[index] = value!;
-                      _beaconPageNotifier!.pauseScanning();
-                    });
-                  },
-                  value: _isChecked[index],
-                  secondary: const CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: AssetImage("images/Beacon+Synergy.png"),
-                  ),
-                  title: Text(beacons[index].proximityUUID),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Major:${beacons[index].major.toString()}"),
-                      Text("Minor:${beacons[index].minor.toString()}"),
-                      Text("Distance:${beacons[index].accuracy} M")
-                    ],
-                  ),
-                ),
+              value: _isChecked[index],
+              secondary: const CircleAvatar(
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage("images/Beacon+Synergy.png"),
               ),
-            );
-          });
-    });
+              title: Text(beacons[index].proximityUUID),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Major:${beacons[index].major.toString()}"),
+                  Text("Minor:${beacons[index].minor.toString()}"),
+                  Text("Distance:${beacons[index].accuracy} M")
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
