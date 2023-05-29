@@ -33,7 +33,7 @@ class BeaconPageNotifier extends ChangeNotifier {
 
   void pauseScanning(){
     _streamRanging.pause();
-    Timer.periodic(Duration(seconds: 10), (timer) {
+    Timer.periodic(Duration(seconds: 15), (timer) {
       _streamRanging.resume();
       timer.cancel();
      });
