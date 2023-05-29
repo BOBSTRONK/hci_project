@@ -1,13 +1,7 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:BeaconGuard/screen/beacon_scanned_page.dart';
 import 'package:flutter/material.dart';
 import 'screen/chat.dart';
 import 'screen/dashboard.dart';
 import 'screen/beaconList.dart';
-import 'package:flutter_beacon/flutter_beacon.dart';
-import 'package:beacon_broadcast/beacon_broadcast.dart' as bb;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -20,9 +14,6 @@ class _HomeState extends State<Home> {
   int currentTab = 0;
   double? _deviceWidth;
   final List<Widget> screens = [Dashboard(), Chat()];
-  late Stream<RangingResult> _beaconStream;
-  late StreamSubscription<RangingResult> _streamRanging;
-  bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
 
   final PageStorageBucket bucket = PageStorageBucket();
   Widget currentScreen = Dashboard();
@@ -140,44 +131,5 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
-
-  Column _buildBottomNavigationMenu() {
-    return Column(
-      children: <Widget>[
-        ListTile(
-          leading: Icon(Icons.bluetooth),
-          title: Text('Enable Phone As Beacon'),
-          onTap: () {
-            becomeBeacon();
-          },
-        )
-      ],
-    );
-  }
-
-  Future<void> becomeBeacon() async {
-    bb.BeaconStatus transmissionSupportStatus =
-        await beaconBroadcast.checkTransmissionSupported();
-    switch (transmissionSupportStatus) {
-      case bb.BeaconStatus.supported:
-        // You're good to go, you can advertise as a beacon
-        beaconBroadcast
-            .setUUID("39ED98FF-2900-441A-802F-9C398FC199D2")
-            .setMajorId(1)
-            .setMinorId(100)
-            .start();
-        print("i am a beacon now");
-        break;
-      case bb.BeaconStatus.notSupportedMinSdk:
-        // Your Android system version is too low (min. is 21)
-        break;
-      case bb.BeaconStatus.notSupportedBle:
-        // Your device doesn't support BLE
-        break;
-      case bb.BeaconStatus.notSupportedCannotGetAdvertiser:
-        // Either your chipset or driver is incompatible
-        break;
-    }
-  }
+  }  
 }
