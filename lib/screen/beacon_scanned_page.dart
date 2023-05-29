@@ -65,7 +65,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                     _isChecked[index] = value!;
                     _beaconPageNotifier!.pauseScanning();
                     print(_isChecked);
-                    print(beacons[0].runtimeType);
+                    print(beacons[0].toJson);
                   });
                 },
                 value: _isChecked[index],
