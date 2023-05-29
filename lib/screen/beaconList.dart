@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:BeaconGuard/screen/beacon_scanned_page.dart';
 
-class Chat extends StatefulWidget {
-  const Chat({super.key});
+class BeaconList extends StatefulWidget {
+  const BeaconList({super.key});
 
   @override
-  State<Chat> createState() => _ChatState();
+  State<BeaconList> createState() => _BeaconListState();
 }
 
-class _ChatState extends State<Chat> {
+class _BeaconListState extends State<BeaconList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('History'),
+        title: const Text('Beacon List'),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -24,7 +24,7 @@ class _ChatState extends State<Chat> {
       ),
       body: Center(
           child: Text(
-        'History Screen',
+        'Beacon List Screen',
         style: TextStyle(fontSize: 40),
       )),
     );
