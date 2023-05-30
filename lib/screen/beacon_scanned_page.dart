@@ -4,6 +4,10 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sound_mode/permission_handler.dart';
+import 'package:sound_mode/sound_mode.dart';
+import 'package:sound_mode/utils/ringer_mode_statuses.dart';
 
 import '../service/beacon_repository.dart';
 import '../service/beacon_scan_page_notifier.dart';
@@ -19,7 +23,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
   BeaconPageNotifier? _beaconPageNotifier;
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
   List<bool> _isChecked = <bool>[];
-
+  bool? isGranted;
 
   Widget _buildUI() {
     return Builder(builder: (context) {
@@ -39,6 +43,8 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       }
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
+          SetToSilentMode(_beaconPageNotifier!.scannedBeacons,
+              _beaconRepositoryNotifier!.savedBeacons);
           return Scaffold(
             appBar: AppBar(
               title: Text("Scanned Beacons"),
@@ -76,13 +82,41 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Cancel",style: TextStyle(color: Colors.red),)),
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            )),
         TextButton(
             onPressed: () {
               addBeaconToTrustList(beacons, checkList);
               Navigator.pop(context);
             },
             child: Text("Confirm")),
+      ],
+    );
+  }
+
+  Widget noPermissionDialog() {
+    return AlertDialog(
+      title: Text("Info"),
+      content: Text(
+          "We detected a trusted Beacon nearby, but your device hasn't granted permission to the app for enabling Silent mode. If you'd like, we can open the Do Not Disturb Access settings for you to grant access"),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            )),
+        TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await PermissionHandler.openDoNotDisturbSetting();
+              
+            },
+            child: Text("OK!")),
       ],
     );
   }
@@ -106,9 +140,9 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                     setState(() {
                       _isChecked[index] = value!;
                       _beaconPageNotifier!.pauseScanning();
-
                       print(_isChecked);
-                      print(_beaconRepositoryNotifier!.savedBeacons[0].proximityUUID);
+                      print(_beaconRepositoryNotifier!
+                          .savedBeacons[0].proximityUUID);
                       print(beacons[0].toJson["proximityUUID"]);
                     });
                   },
@@ -149,6 +183,38 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
     beaconsToAdd.forEach((element) {
       _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
     });
+  }
+
+  Future<void> SetToSilentMode(List<Beacon> currentScannedBeacons,
+      List<BeaconModel> savedBeacons) async {
+    List<BeaconModel> scannedBeacons = <BeaconModel>[];
+    currentScannedBeacons.forEach((element) {
+      scannedBeacons
+          .add(BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
+    });
+    scannedBeacons.forEach((element) async {
+      for (var i = 0; i < savedBeacons.length; i++) {
+        if (element == savedBeacons[i]) {
+          await _getPermissionStatus();
+          if(isGranted!){
+            await SoundMode.setSoundMode(RingerModeStatus.silent);
+          }
+          
+        }
+      }
+    });
+  }
+
+  Future<void> _getPermissionStatus() async {
+    isGranted = await PermissionHandler.permissionsGranted;
+    print(isGranted);
+    if (!isGranted!) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return noPermissionDialog();
+          });
+    }
   }
 
   @override
