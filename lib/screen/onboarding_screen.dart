@@ -52,7 +52,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           onTap: () {
                             _controller.jumpToPage(2);
                           },
-                          child: Text("Skip"),
+                          child: Text(
+                            "Skip",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         ),
                   // dot indicator
                   SmoothPageIndicator(controller: _controller, count: 3),
@@ -67,7 +74,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               return Home();
                             }));
                           },
-                          child: Text("Done"),
+                          child: Text(
+                            "Done",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         )
                       : GestureDetector(
                           onTap: () {
@@ -76,7 +90,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               curve: Curves.easeIn,
                             );
                           },
-                          child: Text("Next"),
+                          child: Text(
+                            "Next",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         ),
                 ],
               ))
