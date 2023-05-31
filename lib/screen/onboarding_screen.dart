@@ -55,9 +55,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           child: Text(
                             "Skip",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
+                              fontSize: 16,
+                              color: Colors.grey,
                             ),
                           ),
                         ),
@@ -74,15 +73,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               return Home();
                             }));
                           },
-                          child: Text(
-                            "Done",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                        )
+                          child: Icon(
+                            Icons.check_circle_outline,
+                            size: 35.0,
+                          ))
                       : GestureDetector(
                           onTap: () {
                             _controller.nextPage(
@@ -90,13 +84,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               curve: Curves.easeIn,
                             );
                           },
-                          child: Text(
-                            "Next",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
+                          child: Image.asset(
+                            "images/arrow.png",
+                            width: 30,
+                            height: 30,
                           ),
                         ),
                 ],
