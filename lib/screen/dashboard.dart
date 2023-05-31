@@ -13,7 +13,7 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
+class _DashboardState extends State<Dashboard> {
   late Stream<RangingResult> _beaconStream;
   late StreamSubscription<RangingResult> _streamRanging;
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
@@ -21,7 +21,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   bool isInitialized = false;
   double? _deviceHeight, _deviceWidth;
   AnimationController? _animationController;
-  int _playCount = 0;
 
   @override
   Widget build(BuildContext context) {
