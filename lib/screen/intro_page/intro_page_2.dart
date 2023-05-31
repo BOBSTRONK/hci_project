@@ -6,7 +6,7 @@ class IntroPageTwo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromRGBO(230, 231, 253, 100),
+      color: Color.fromRGBO(230, 231, 253, 0.8),
       child: Column(
         children: [
           Expanded(

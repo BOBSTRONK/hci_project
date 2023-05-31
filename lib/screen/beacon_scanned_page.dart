@@ -43,8 +43,6 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       }
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          SetToSilentMode(_beaconPageNotifier!.scannedBeacons,
-              _beaconRepositoryNotifier!.savedBeacons);
           return Scaffold(
             appBar: AppBar(
               title: Text("Scanned Beacons"),
@@ -96,31 +94,6 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
     );
   }
 
-  Widget noPermissionDialog() {
-    return AlertDialog(
-      title: Text("Info"),
-      content: Text(
-          "We detected a trusted Beacon nearby, but your device hasn't granted permission to the app for enabling Silent mode. If you'd like, we can open the Do Not Disturb Access settings for you to grant access"),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.red),
-            )),
-        TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await PermissionHandler.openDoNotDisturbSetting();
-              
-            },
-            child: Text("OK!")),
-      ],
-    );
-  }
-
   Widget buildListOfBeacons(List<Beacon> beacons) {
     _isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
     return StatefulBuilder(
@@ -132,14 +105,14 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
-                _beaconPageNotifier!.pauseScanning();
+                _beaconPageNotifier!.pauseScanning_15();
               },
               child: Card(
                 child: CheckboxListTile(
                   onChanged: (value) {
                     setState(() {
                       _isChecked[index] = value!;
-                      _beaconPageNotifier!.pauseScanning();
+                      _beaconPageNotifier!.pauseScanning_15();
                       print(_isChecked);
                       print(_beaconRepositoryNotifier!
                           .savedBeacons[0].proximityUUID);
@@ -185,37 +158,9 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
     });
   }
 
-  Future<void> SetToSilentMode(List<Beacon> currentScannedBeacons,
-      List<BeaconModel> savedBeacons) async {
-    List<BeaconModel> scannedBeacons = <BeaconModel>[];
-    currentScannedBeacons.forEach((element) {
-      scannedBeacons
-          .add(BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
-    });
-    scannedBeacons.forEach((element) async {
-      for (var i = 0; i < savedBeacons.length; i++) {
-        if (element == savedBeacons[i]) {
-          await _getPermissionStatus();
-          if(isGranted!){
-            await SoundMode.setSoundMode(RingerModeStatus.silent);
-          }
-          
-        }
-      }
-    });
-  }
 
-  Future<void> _getPermissionStatus() async {
-    isGranted = await PermissionHandler.permissionsGranted;
-    print(isGranted);
-    if (!isGranted!) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return noPermissionDialog();
-          });
-    }
-  }
+
+
 
   @override
   Widget build(BuildContext context) {

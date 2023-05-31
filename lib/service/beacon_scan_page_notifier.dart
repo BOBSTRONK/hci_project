@@ -3,16 +3,32 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
+import 'package:flutter_dnd/flutter_dnd.dart';
+import 'package:sound_mode/permission_handler.dart';
+import 'package:sound_mode/sound_mode.dart';
+import 'package:sound_mode/utils/ringer_mode_statuses.dart';
+
+import '../model/beacon_model.dart';
+
+enum Status { connected, selfBeacon, scanning }
 
 class BeaconPageNotifier extends ChangeNotifier {
   BeaconPageNotifier() {
     startScanningBeacon();
   }
+
   bool loading = false;
   List<Beacon> scannedBeacons = <Beacon>[];
   bool isPaused = false;
+  bool? isGranted;
+  String status = "scanning";
+  Duration duration = Duration();
+  Timer? timer;
   List<bool> isCheckd = <bool>[];
   late StreamSubscription<RangingResult> _streamRanging;
+
+
+
   Future<void> InitBeaconPermission() async {
     try {
       // if you want to manage manual checking about the required permissions
@@ -25,21 +41,29 @@ class BeaconPageNotifier extends ChangeNotifier {
     }
   }
 
+
   @override
   void dispose() {
     // TODO: implement dispose
     _streamRanging.cancel();
   }
 
-  void pauseScanning(){
+  void pauseScanning_15() {
     _streamRanging.pause();
     Timer.periodic(Duration(seconds: 15), (timer) {
       _streamRanging.resume();
       timer.cancel();
-     });
+    });
   }
 
-
+  void pauseScanning_60() {
+    _streamRanging.pause();
+    Timer.periodic(Duration(seconds: 60), (timer) {
+      _streamRanging.resume();
+      timer.cancel();
+    });
+  }
+  
   Future<void> startScanningBeacon() async {
     loading = true;
     final regions = <Region>[];
@@ -60,12 +84,12 @@ class BeaconPageNotifier extends ChangeNotifier {
         flutterBeacon.ranging(regions).listen((RangingResult result) {
       // result contains a region and list of beacons found
       // list can be empty if no matching beacons were found in range
-        print("result of beacons: ${result.beacons}");
-        print("Regions: ${result.region}");
-        BeaconScanned = result.beacons;
-        scannedBeacons = BeaconScanned;
-        loading = false;
-        notifyListeners();
+      print("result of beacons: ${result.beacons}");
+      print("Regions: ${result.region}");
+      BeaconScanned = result.beacons;
+      scannedBeacons = BeaconScanned;
+      loading = false;
+      notifyListeners();
     });
   }
 }
