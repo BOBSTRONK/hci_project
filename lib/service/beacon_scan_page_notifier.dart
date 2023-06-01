@@ -89,7 +89,7 @@ class BeaconPageNotifier extends ChangeNotifier {
       BeaconScanned = result.beacons;
       scannedBeacons = BeaconScanned;
       loading = false;
-      notifyListeners();
+         notifyListeners();
     });
   }
 }

@@ -18,7 +18,7 @@ class DashBoardNotifer extends ChangeNotifier {
   }
 
   bool loading = false;
-  List<Beacon> scannedBeacons = <Beacon>[];
+  List<List<BeaconModel>> scannedBeacons = <List<BeaconModel>>[];
   bool isPaused = false;
   bool? isGranted;
   String status = "scanning";
@@ -42,24 +42,45 @@ class DashBoardNotifer extends ChangeNotifier {
 
   Future<void> SetToSilentMode(
       List<BeaconModel> savedBeacons, BuildContext context) async {
-    List<BeaconModel> ScanningBeacons = <BeaconModel>[];
+        if(await checkScanned(savedBeacons, context)){
+          status = "connected";
+          notifyListeners();
+          startTimer();
+        }else{
+          status ="scanning";
+        }
+        notifyListeners();
+  }
+
+  
+
+  Future<bool> checkScanned(
+      List<BeaconModel> savedBeacons, BuildContext context) async {
+    bool result =false;
+    for (int i = 0; i < scannedBeacons.length; i++) {
+      if (compareTwoBeaconList(savedBeacons, scannedBeacons[i])) {
+        await _getPermissionStatus(context);
+        if (isGranted!) {
+          await SoundMode.setSoundMode(RingerModeStatus.silent);
+          FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_NONE);
+        }
+        result = true;
+      } 
+    }
+    return result;
+  }
+
+  bool compareTwoBeaconList(
+      List<BeaconModel> savedBeacons, List<BeaconModel> scannedBeacons) {
+    bool result = false;
     scannedBeacons.forEach((element) {
-      ScanningBeacons.add(
-          BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
-    });
-    ScanningBeacons.forEach((element) async {
       for (var i = 0; i < savedBeacons.length; i++) {
         if (element == savedBeacons[i]) {
-          await _getPermissionStatus(context);
-          if (isGranted!) {
-            await SoundMode.setSoundMode(RingerModeStatus.silent);
-            FlutterDnd.setInterruptionFilter(
-                FlutterDnd.INTERRUPTION_FILTER_NONE);
-          }
+          result = true;
         }
       }
     });
-    status = "connected";
+    return result;
   }
 
   //start the timer
@@ -118,13 +139,11 @@ class DashBoardNotifer extends ChangeNotifier {
     final addSeconds = 1;
     final seconds = duration.inSeconds + addSeconds;
     duration = Duration(seconds: seconds);
-    notifyListeners();
   }
 
   //reset timer
   void reset() {
     duration = Duration();
-    notifyListeners();
   }
 
   //stop the timer
@@ -133,7 +152,6 @@ class DashBoardNotifer extends ChangeNotifier {
       reset();
     }
     timer?.cancel();
-    notifyListeners();
   }
 
   //get the permission status of the application
@@ -181,25 +199,26 @@ class DashBoardNotifer extends ChangeNotifier {
 
   void pauseScanning_15() {
     _streamRanging.pause();
-    Timer.periodic(Duration(seconds: 15), (timer) {
+    Timer(const Duration(seconds: 15), () {
       _streamRanging.resume();
-      timer.cancel();
     });
   }
 
-
-  void startScanningBeaconPeriodically(){
+  void startScanningBeaconPeriodically() {
     _streamRanging.pause();
-    Timer.periodic(Duration(seconds: 10), (timers) {
-       _streamRanging.resume();
-       timers.cancel();
-     });
+    Timer(Duration(seconds: 15), () {
+      _streamRanging.resume();
+    });
   }
 
-  Future<void>_startScanningBeacon() async {
+  Future<void> _startScanningBeacon() async {
     loading = true;
     final regions = <Region>[];
-    List<Beacon> BeaconScanned = <Beacon>[];
+    int counter = 0;
+    final BeaconScanned = List.filled(20, <BeaconModel>[]);
+
+    List<BeaconModel> bucket = <BeaconModel>[];
+    List<BeaconModel> bucket2 = <BeaconModel>[];
 
     if (Platform.isIOS) {
       // iOS platform, at least set identifier and proximityUUID for region scanning
@@ -213,16 +232,30 @@ class DashBoardNotifer extends ChangeNotifier {
     _beaconStream = flutterBeacon.ranging(regions);
 
     // to start ranging beacons
-      _streamRanging =
-          flutterBeacon.ranging(regions).listen((RangingResult result) {
-        // result contains a region and list of beacons found
-        // list can be empty if no matching beacons were found in range
-        print("result of beacons: ${result.beacons}");
-        print("Regions: ${result.region}");
-        BeaconScanned = result.beacons;
-        scannedBeacons = BeaconScanned;
-        loading = false;
-        notifyListeners();
+    _streamRanging =
+        flutterBeacon.ranging(regions).listen((RangingResult result) {
+      // result contains a region and list of beacons found
+      // list can be empty if no matching beacons were found in range
+      // print("result of beacons: ${result.beacons}");
+      // print("Regions: ${result.region}");
+
+      List<BeaconModel> bucket = <BeaconModel>[];
+
+      result.beacons.forEach((element) {
+        bucket
+            .add(BeaconModel.fromJson(element.toJson as Map<String, dynamic>));
       });
+
+      BeaconScanned[counter] = List.from(bucket);
+      counter = (counter + 1) % 20;
+      print(counter);
+      print(BeaconScanned);
+
+      scannedBeacons = BeaconScanned;
+      bucket.clear();
+      loading = false;
+
+      notifyListeners();
+    });
   }
 }

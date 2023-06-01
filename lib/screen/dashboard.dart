@@ -31,23 +31,27 @@ class _DashboardState extends State<Dashboard> {
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool? isGranted;
   bool isInitialized = false;
-
-
+  Duration duration = Duration();
+  Timer? timer;
+  late final myDashBoardNotifier;
   @override
   Widget build(BuildContext context) {
-    Timer timerForScanningBeacon = Timer.periodic(Duration(seconds: 10),(Timer t){
-      _dashBoardNotifier?.startScanningBeaconPeriodically();
-    });
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<DashBoardNotifer>(
           create: (BuildContext context) => DashBoardNotifer(),
         ),
         ChangeNotifierProvider<BeaconRepositoryNotifier>(
-            create: (BuildContext context) => BeaconRepositoryNotifier())
+            create: (BuildContext context) => BeaconRepositoryNotifier()),
+        Provider<DashBoardNotifer>(create: (context) => DashBoardNotifer())
       ],
       child: _build(context),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -60,86 +64,237 @@ class _DashboardState extends State<Dashboard> {
     return Builder(builder: (context) {
       _dashBoardNotifier = context.watch<DashBoardNotifer>();
       _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
-      DetectedToSilentMode(_beaconRepositoryNotifier!.savedBeacons);
+      Widget? body;
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        DetectedToSilentMode(_beaconRepositoryNotifier!.savedBeacons);
+      });
+      if (_dashBoardNotifier!.status == "connected") {
+        body = ConnectedView();
+      } else if (_dashBoardNotifier!.status == "scanning") {
+        body = ScanningView();
+      }
       return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('Dashboard'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => _onButtonPressed(),
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Container(
-                height: 100,
-                child: Card(
-                  elevation: 2, // Adjust the elevation for the shadow effect
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    contentPadding:
-                        EdgeInsets.zero, // Remove the default content padding
-                    title: Center(
-                      // Align the content at the center
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(width: 10),
-                          Image.asset(
-                            "images/beaconIcon.jpeg",
-                            width: 58,
-                            height: 58,
-                          ),
-                          SizedBox(
-                              width:
-                                  10), // Add spacing between the leading icon and title
-                          Expanded(
-                            child: Text(
-                              'Click to Enable Phone As Beacon',
-                              //Click to Enable to Connect to Beacon
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Icon(Icons.phone_android),
-                          //Icon(Icons.bluetooth),
-                          SizedBox(width: 10),
-                        ],
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    onTap: () {
-                      becomeBeacon();
-                    },
-                  ),
-                ),
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text('Dashboard'),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => _onButtonPressed(),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                child: Image.asset("images/connected.gif"),
-              ),
-              Text(
-                  "Swithced into No Disturb mode due to trust Beacon in nearby"),
-              SizedBox(height: 15,),
-              _dashBoardNotifier!.buildTime()
             ],
           ),
-        ),
-      );
+          body: body);
     });
   }
 
+  Widget ConnectedView() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Container(
+            height: 100,
+            child: Card(
+              elevation: 2, // Adjust the elevation for the shadow effect
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                contentPadding:
+                    EdgeInsets.zero, // Remove the default content padding
+                title: Center(
+                  // Align the content at the center
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 10),
+                      Image.asset(
+                        "images/beaconIcon.jpeg",
+                        width: 58,
+                        height: 58,
+                      ),
+                      SizedBox(
+                          width:
+                              10), // Add spacing between the leading icon and title
+                      Expanded(
+                        child: Text(
+                          'Click to Enable Phone As Beacon',
+                          //Click to Enable to Connect to Beacon
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.phone_android),
+                      //Icon(Icons.bluetooth),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                onTap: () {
+                  becomeBeacon();
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: Image.asset("images/connected.gif"),
+          ),
+          Text("Swithced into No Disturb mode due to trust Beacon in nearby"),
+          SizedBox(
+            height: 15,
+          ),
+          buildTime(),
+        ],
+      ),
+    );
+  }
+
+  Widget ScanningView() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Container(
+            height: 100,
+            child: Card(
+              elevation: 2, // Adjust the elevation for the shadow effect
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                contentPadding:
+                    EdgeInsets.zero, // Remove the default content padding
+                title: Center(
+                  // Align the content at the center
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 10),
+                      Image.asset(
+                        "images/beaconIcon.jpeg",
+                        width: 58,
+                        height: 58,
+                      ),
+                      SizedBox(
+                          width:
+                              10), // Add spacing between the leading icon and title
+                      Expanded(
+                        child: Text(
+                          'Click to Enable Phone As Beacon',
+                          //Click to Enable to Connect to Beacon
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.phone_android),
+                      //Icon(Icons.bluetooth),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                onTap: () {
+                  becomeBeacon();
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: Image.asset("images/connected.gif"),
+          ),
+          Text("Swithced into No Disturb mode due to trust Beacon in nearby"),
+          SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  //start the timer
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
+      addTime();
+    });
+  }
+
+  Widget buildTime() {
+    // 9 --> 09, 11-->11
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        buildTimeCard(time: hours, header: "Hours"),
+        const SizedBox(
+          width: 8,
+        ),
+        buildTimeCard(time: minutes, header: "Minutes"),
+        const SizedBox(
+          width: 8,
+        ),
+        buildTimeCard(time: seconds, header: "Seconds"),
+      ],
+    );
+  }
+
+  Widget buildTimeCard({required String time, required String header}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color: Colors.black, borderRadius: BorderRadius.circular(20)),
+            child: Text(
+              time,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 72),
+            )),
+        const SizedBox(
+          height: 10,
+        ),
+        Text(header),
+      ],
+    );
+  }
+
+  void addTime() {
+    final addSeconds = 1;
+    setState(() {
+      final seconds = duration.inSeconds + addSeconds;
+      duration = Duration(seconds: seconds);
+    });
+  }
+
+  //reset timer
+  void reset() {
+    duration = Duration();
+  }
+
+  //stop the timer
+  void stopTimer({bool resets = true}) {
+    if (resets) {
+      reset();
+    }
+    timer?.cancel();
+  }
 
   void DetectedToSilentMode(List<BeaconModel> savedBeacons) {
     _dashBoardNotifier!.SetToSilentMode(savedBeacons, context);
