@@ -90,12 +90,7 @@ class _DashboardState extends State<Dashboard> {
           actions: [
             IconButton(
               icon: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-                );
-              },
+              onPressed: () => BeaconScannedPage(),
             ),
           ],
         ),

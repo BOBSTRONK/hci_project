@@ -146,10 +146,7 @@ class _BeaconListState extends State<BeaconList> {
                 left: _deviceWidth! * 0.7,
               ),
               child: FloatingActionButton(
-                onPressed: () {
-                  // Handle trash button press
-                  // Example: delete selected items
-                },
+                onPressed: () => _onButtonPressed(),
                 backgroundColor: Colors.white,
                 child: Icon(
                   Icons.delete_outline,
@@ -160,6 +157,54 @@ class _BeaconListState extends State<BeaconList> {
           ],
         );
       },
+    );
+  }
+
+  void _onButtonPressed() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: const Color(0xFF737373),
+            height: 115,
+            child: Container(
+              child: _buildBottomNavigationMenu(),
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Column _buildBottomNavigationMenu() {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: const Text(
+            'Delete',
+            style: TextStyle(color: Colors.red),
+          ),
+          onTap: () {
+            //delete function
+          },
+        ),
+        const Divider(
+          color: Colors.grey,
+          height: 0.8,
+          thickness: 1,
+        ),
+        ListTile(
+          title: const Text('Cancel'),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
     );
   }
 }
