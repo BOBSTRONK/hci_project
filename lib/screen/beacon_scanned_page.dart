@@ -32,22 +32,12 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
 
       Widget? body;
       if (_beaconPageNotifier!.loading == true) {
-        body = Column(
-          children: [
-            buildListOfBeacons(_beaconPageNotifier!.scannedBeacons),
-            SizedBox(height: 16),
-            const Center(
-              child: Text(
-                'Scanned Beacons',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ],
+        body = Container(
+          alignment: Alignment.center,
+          child: CircularProgressIndicator.adaptive(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          ),
         );
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
         body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
