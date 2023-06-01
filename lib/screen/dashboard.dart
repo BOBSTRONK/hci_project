@@ -31,7 +31,8 @@ class _DashboardState extends State<Dashboard> {
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool? isGranted;
   bool isInitialized = false;
-  double? _deviceHeight, _deviceWidth;   Duration duration = Duration();
+  double? _deviceHeight, _deviceWidth;
+  Duration duration = Duration();
   Timer? timer;
   late final myDashBoardNotifier;
   @override
@@ -43,7 +44,6 @@ class _DashboardState extends State<Dashboard> {
         ),
         ChangeNotifierProvider<BeaconRepositoryNotifier>(
             create: (BuildContext context) => BeaconRepositoryNotifier()),
-        Provider<DashBoardNotifer>(create: (context) => DashBoardNotifer())
       ],
       child: _build(context),
     );
@@ -77,19 +77,20 @@ class _DashboardState extends State<Dashboard> {
         body = ScanningView();
       }
       return Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Text('Dashboard'),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () => _onButtonPressed(),
-              ),
-            ],
-          ),
-          body: Selector<DashBoardNotifer,String>(selector:(_,_dashBoardNotifier)=>_dashBoardNotifier.status ,builder: (context,status,_){
-            return body!;
-          },));
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('Beacon Guard'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () => _onButtonPressed(),
+            ),
+          ],
+        ),
+        //try to use selector to only listen to the status
+        body: body,
+      );
     });
   }
 
@@ -149,12 +150,32 @@ class _DashboardState extends State<Dashboard> {
             height: 20,
           ),
           Container(
-            child: Image.asset("images/connected.gif"),
+            child: Image.asset(
+              "images/connected.gif",
+              width: _deviceWidth! * 0.5,
+            ),
           ),
-          Text("Swithced into No Disturb mode due to trust Beacon in nearby"),
-          SizedBox(
-            height: 15,
+          Padding(
+            padding: EdgeInsets.only(top: 15, right: 15, left: 15, bottom: 28),
+            child: Text(
+              "The phone has successfully switched into \"Do Not Disturb\" mode due to a trusted nearby beacon",
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
+            ),
           ),
+          Padding(
+              padding: EdgeInsets.only(left: 15.0, bottom: 10.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Time Connected",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )),
           buildTime(),
         ],
       ),
@@ -257,20 +278,30 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget buildTimeCard({required String time, required String header}) {
+Widget buildTimeCard({required String time, required String header}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: Colors.black, borderRadius: BorderRadius.circular(20)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 3,
+                  blurRadius: 3,
+                  offset: Offset(3, 5), // changes the shadow position
+                ),
+              ],
+            ),
             child: Text(
               time,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 72),
+                  color: Colors.black,
+                  fontSize: 45),
             )),
         const SizedBox(
           height: 10,

@@ -36,7 +36,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
           children: [
             buildListOfBeacons(_beaconPageNotifier!.scannedBeacons),
             SizedBox(height: 16),
-            Center(
+            const Center(
               child: Text(
                 'Scanned Beacons',
                 textAlign: TextAlign.left,
@@ -52,7 +52,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
         body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
       } else {
-        body = Center(
+        body = const Center(
           child: Text("No beacons have been found in close proximity.",
               textAlign: TextAlign.center,
               style: TextStyle(
