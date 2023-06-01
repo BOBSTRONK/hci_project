@@ -87,7 +87,9 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-          body: body);
+          body: Selector<DashBoardNotifer,String>(selector:(_,_dashBoardNotifier)=>_dashBoardNotifier.status ,builder: (context,status,_){
+            return body!;
+          },));
     });
   }
 
