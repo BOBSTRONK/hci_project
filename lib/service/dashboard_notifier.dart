@@ -117,15 +117,25 @@ class DashBoardNotifer extends ChangeNotifier {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: Colors.black, borderRadius: BorderRadius.circular(20)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 3,
+                  blurRadius: 3,
+                  offset: Offset(3, 5), // changes the shadow position
+                ),
+              ],
+            ),
             child: Text(
               time,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 72),
+                  color: Colors.black,
+                  fontSize: 45),
             )),
         const SizedBox(
           height: 10,

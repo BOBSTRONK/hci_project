@@ -29,26 +29,47 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
     return Builder(builder: (context) {
       _beaconPageNotifier = context.watch<BeaconPageNotifier>();
       _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
+
       Widget? body;
       if (_beaconPageNotifier!.loading == true) {
-        body = Container(
-          alignment: Alignment.center,
-          child: CircularProgressIndicator.adaptive(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          ),
+        body = Column(
+          children: [
+            buildListOfBeacons(_beaconPageNotifier!.scannedBeacons),
+            SizedBox(height: 16),
+            Center(
+              child: Text(
+                'Scanned Beacons',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ],
         );
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
         body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
+      } else {
+        body = Center(
+          child: Text("No beacons have been found in close proximity.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600)),
+        );
       }
+
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return Scaffold(
             appBar: AppBar(
-              title: Text("Scanned Beacons"),
+              title: Text("Add Beacons"),
             ),
             body: body,
-            floatingActionButton: SizedBox(
+            /*floatingActionButton: SizedBox(
                 height: 60,
                 child: ElevatedButton(
                   child: Text(
@@ -63,7 +84,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                               _beaconPageNotifier!.scannedBeacons, _isChecked);
                         });
                   },
-                )),
+                )),*/
           );
         },
       );
@@ -157,10 +178,6 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
     });
   }
-
-
-
-
 
   @override
   Widget build(BuildContext context) {

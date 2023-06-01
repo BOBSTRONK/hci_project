@@ -31,7 +31,7 @@ class _DashboardState extends State<Dashboard> {
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool? isGranted;
   bool isInitialized = false;
-  Duration duration = Duration();
+  double? _deviceHeight, _deviceWidth;   Duration duration = Duration();
   Timer? timer;
   late final myDashBoardNotifier;
   @override
@@ -61,6 +61,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _build(BuildContext context) {
+    _deviceHeight = MediaQuery.of(context).size.height;
+    _deviceWidth = MediaQuery.of(context).size.width;
+
     return Builder(builder: (context) {
       _dashBoardNotifier = context.watch<DashBoardNotifer>();
       _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();

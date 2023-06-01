@@ -55,14 +55,15 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           child: Text(
                             "Skip",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
+                              fontSize: 16,
+                              color: Colors.grey,
                             ),
                           ),
                         ),
                   // dot indicator
-                  SmoothPageIndicator(controller: _controller, count: 3),
+                  onLastPage
+                      ? Text("")
+                      : SmoothPageIndicator(controller: _controller, count: 3),
 
                   //next or done
                   onLastPage
@@ -74,15 +75,26 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               return Home();
                             }));
                           },
-                          child: Text(
-                            "Done",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                        )
+                          child: Padding(
+                              padding: EdgeInsets.only(right: 75.0),
+                              child: Container(
+                                width: 150,
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50.0),
+                                  border: Border.all(color: Colors.black),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Get Started',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              )))
                       : GestureDetector(
                           onTap: () {
                             _controller.nextPage(
@@ -90,13 +102,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               curve: Curves.easeIn,
                             );
                           },
-                          child: Text(
-                            "Next",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.blueAccent,
-                            ),
+                          child: Image.asset(
+                            "images/arrow.png",
+                            width: 40,
+                            height: 40,
                           ),
                         ),
                 ],

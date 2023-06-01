@@ -12,59 +12,61 @@ class _BeaconListState extends State<BeaconList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Beacon List'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _onButtonPressed(),
-          ),
-        ],
-      ),
-      body: Center(
-          child: Text(
-        'Beacon List Screen',
-        style: TextStyle(fontSize: 40),
-      )),
-    );
-  }
-
-  void _onButtonPressed() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            color: const Color(0xFF737373),
-            height: 60,
-            child: Container(
-              child: _buildBottomNavigationMenu(),
-              decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Beacon List'),
+        ),
+        body: new Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(15.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Scanned Beacons',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
-        });
-  }
-
-  Column _buildBottomNavigationMenu() {
-    return Column(
-      children: <Widget>[
-        ListTile(
-          leading: Icon(Icons.add),
-          title: Text('Add Beacon'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-            );
-          },
-        ),
-      ],
-    );
+              Flexible(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 14.0, right: 14.0),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Text("ciao")),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Trusted Beacons',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 14.0, right: 14.0),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Text("ciao")),
+                ),
+              ),
+            ]));
   }
 }
