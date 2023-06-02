@@ -257,10 +257,10 @@ class _DashboardState extends State<Dashboard> {
                   fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
             ),
           ),
-          const Padding(
+           Padding(
             padding: EdgeInsets.only(left: 15.0, bottom: 10.0, right: 15),
             child: Column(
-              children: [
+              children: const [
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(

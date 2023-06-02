@@ -17,6 +17,7 @@ class BeaconList extends StatefulWidget {
 class _BeaconListState extends State<BeaconList> {
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
   bool isEditing = false;
+  late List<BeaconModel> ListOfTrustedBeacons;
   List<bool> _isChecked = <bool>[];
   double? _deviceHeight, _deviceWidth;
 
@@ -61,58 +62,47 @@ class _BeaconListState extends State<BeaconList> {
   }
 
   Widget buildListOfBeacons() {
-    return FutureBuilder<List<BeaconModel>>(
-      future: _beaconRepositoryNotifier!.getBeaconsDetails(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<BeaconModel> beaconList = snapshot.data!;
-          _isChecked = List.filled(beaconList.length, false);
-          return ListView.builder(
-            itemCount: beaconList.length,
-            itemBuilder: (BuildContext context, int index) {
-              if (isEditing) {
-                return _editCheckBox(context, index, beaconList);
-              } else {
-                return Card(
-                  child: ListTile(
-                    leading: Image.asset("images/Beacon+Synergy.png"),
-                    title: Text(beaconList[index].proximityUUID),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Major:${beaconList[index].major.toString()}"),
-                        Text("Minor:${beaconList[index].minor.toString()}"),
-                      ],
-                    ),
-                  ),
-                );
-              }
-            },
-          );
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+    ListOfTrustedBeacons = _beaconRepositoryNotifier!.savedBeacons;
+    _isChecked = List.filled(ListOfTrustedBeacons.length, false);
+    return ListView.builder(
+      itemCount: ListOfTrustedBeacons.length,
+      itemBuilder: (BuildContext context, int index) {
+        if (isEditing) {
+          return _editCheckBox(index, ListOfTrustedBeacons,);
         } else {
-          return const CircularProgressIndicator();
+          return Card(
+            child: ListTile(
+              leading: Image.asset("images/Beacon+Synergy.png"),
+              title: Text(ListOfTrustedBeacons[index].proximityUUID),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Major:${ListOfTrustedBeacons[index].major.toString()}"),
+                  Text("Minor:${ListOfTrustedBeacons[index].minor.toString()}"),
+                ],
+              ),
+            ),
+          );
         }
       },
     );
   }
 
-  Widget _buildScanningBeaconUi() {
-    Widget? body;
-    body = buildListOfBeacons();
+  // Widget _buildScanningBeaconUi() {
+  //   Widget? body;
+  //   body = buildListOfBeacons();
 
-    return StatefulBuilder(
-      builder: (BuildContext context, StateSetter setState) {
-        return Container(
-          child: body,
-        );
-      },
-    );
-  }
+  //   return StatefulBuilder(
+  //     builder: (BuildContext context, StateSetter setState) {
+  //       return Container(
+  //         child: body,
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _editCheckBox(
-      BuildContext context, int index, List<BeaconModel> beaconList) {
+      int index, List<BeaconModel> beaconList,) {
     _deviceHeight = MediaQuery.of(context).size.height;
     _deviceWidth = MediaQuery.of(context).size.width;
     return StatefulBuilder(
@@ -121,6 +111,7 @@ class _BeaconListState extends State<BeaconList> {
           children: [
             CheckboxListTile(
               onChanged: (value) {
+                print(_isChecked);
                 print("Checkbox onChanged: $value");
                 setState(() {
                   _isChecked[index] = value!;
