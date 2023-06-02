@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:BeaconGuard/screen/beaconList.dart';
 import 'package:BeaconGuard/service/dashboard_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -31,22 +32,52 @@ class _DashboardState extends State<Dashboard> {
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool? isGranted;
   bool isInitialized = false;
+  int? state;
   double? _deviceHeight, _deviceWidth;
-  Duration duration = Duration();
   Timer? timer;
   late final myDashBoardNotifier;
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<DashBoardNotifer>(
-          create: (BuildContext context) => DashBoardNotifer(),
+    _deviceHeight = MediaQuery.of(context).size.height;
+    _deviceWidth = MediaQuery.of(context).size.width;
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('Beacon Guard'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+                );
+              },
+            ),
+          ],
         ),
-        ChangeNotifierProvider<BeaconRepositoryNotifier>(
-            create: (BuildContext context) => BeaconRepositoryNotifier()),
-      ],
-      child: _build(context),
-    );
+        body: Column(
+          children: [
+            Selector<DashBoardNotifer, int>(
+              selector: (context, dashBoardNotifier) =>
+                  dashBoardNotifier.status,
+              builder: (_, status, child) {
+                if (status == 1) {
+                  status = 1;
+                  //startTimer();
+                  print("the status is ${status}");
+                  return ConnectedView();
+                } else {
+                  print("the status is ${status}");
+
+                  return ScanningView();
+                }
+              },
+            ),
+          ],
+        ));
   }
 
   @override
@@ -63,7 +94,6 @@ class _DashboardState extends State<Dashboard> {
   Widget _build(BuildContext context) {
     _deviceHeight = MediaQuery.of(context).size.height;
     _deviceWidth = MediaQuery.of(context).size.width;
-
     return Builder(builder: (context) {
       _dashBoardNotifier = context.watch<DashBoardNotifer>();
       _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
@@ -84,7 +114,12 @@ class _DashboardState extends State<Dashboard> {
           actions: [
             IconButton(
               icon: Icon(Icons.add),
-              onPressed: () => _onButtonPressed(),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+                );
+              },
             ),
           ],
         ),
@@ -146,7 +181,7 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Container(
@@ -155,7 +190,7 @@ class _DashboardState extends State<Dashboard> {
               width: _deviceWidth! * 0.5,
             ),
           ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(top: 15, right: 15, left: 15, bottom: 28),
             child: Text(
               "The phone has successfully switched into \"Do Not Disturb\" mode due to a trusted nearby beacon",
@@ -163,7 +198,7 @@ class _DashboardState extends State<Dashboard> {
                   fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
             ),
           ),
-          Padding(
+          const Padding(
               padding: EdgeInsets.only(left: 15.0, bottom: 10.0),
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -176,7 +211,9 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ),
               )),
-          buildTime(),
+          Consumer<DashBoardNotifer>(builder: (context, dashboard_notifier, _) {
+            return buildTime(dashboard_notifier.duration);
+          })
         ],
       ),
     );
@@ -249,14 +286,7 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  //start the timer
-  void startTimer() {
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
-      addTime();
-    });
-  }
-
-  Widget buildTime() {
+  Widget buildTime(Duration duration) {
     // 9 --> 09, 11-->11
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final hours = twoDigits(duration.inHours);
@@ -278,7 +308,7 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-Widget buildTimeCard({required String time, required String header}) {
+  Widget buildTimeCard({required String time, required String header}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -311,67 +341,8 @@ Widget buildTimeCard({required String time, required String header}) {
     );
   }
 
-  void addTime() {
-    final addSeconds = 1;
-    setState(() {
-      final seconds = duration.inSeconds + addSeconds;
-      duration = Duration(seconds: seconds);
-    });
-  }
-
-  //reset timer
-  void reset() {
-    duration = Duration();
-  }
-
-  //stop the timer
-  void stopTimer({bool resets = true}) {
-    if (resets) {
-      reset();
-    }
-    timer?.cancel();
-  }
-
   void DetectedToSilentMode(List<BeaconModel> savedBeacons) {
     _dashBoardNotifier!.SetToSilentMode(savedBeacons, context);
-  }
-
-  void _onButtonPressed() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            color: const Color(0xFF737373),
-            height: 60,
-            child: Container(
-              child: _buildBottomNavigationMenu(),
-              decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  Column _buildBottomNavigationMenu() {
-    return Column(
-      children: <Widget>[
-        ListTile(
-          leading: Icon(Icons.add),
-          title: Text('Add Beacon'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-            );
-          },
-        ),
-      ],
-    );
   }
 
   Future<void> becomeBeacon() async {

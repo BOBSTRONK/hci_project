@@ -1,15 +1,29 @@
 import 'package:BeaconGuard/screen/onboarding_screen.dart';
+import 'package:BeaconGuard/service/beacon_repository.dart';
+import 'package:BeaconGuard/service/beacon_scan_page_notifier.dart';
+import 'package:BeaconGuard/service/dashboard_notifier.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<DashBoardNotifer>(
+        create: (BuildContext context) => DashBoardNotifer(context),
+      ),
+      ChangeNotifierProvider<BeaconRepositoryNotifier>(
+          create: (BuildContext context) => BeaconRepositoryNotifier()),
+      ChangeNotifierProvider<BeaconPageNotifier>(
+          create: (BuildContext context) => BeaconPageNotifier())
+    ],
+    child: const MyApp(),
+  ));
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -25,15 +39,26 @@ class MyApp extends StatelessWidget {
         } else {
           // Onboarding not completed, show the onboarding page
           return MaterialApp(
-            title: 'Flutter Demo',
+            title: 'Beacon Guard',
+  
             theme: ThemeData(
-              appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 68, 134, 233)),
-              textButtonTheme: TextButtonThemeData(style: ButtonStyle(foregroundColor: MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 68, 134, 233)))),
-              elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(foregroundColor: MaterialStateColor.resolveWith((states) => Color.fromARGB(255, 68, 134, 233)))),
-              floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Color.fromARGB(255, 68, 134, 233)),
+              appBarTheme: const AppBarTheme(
+                  backgroundColor: Color.fromARGB(255, 68, 134, 233)),
+              textButtonTheme: TextButtonThemeData(
+                  style: ButtonStyle(
+                      foregroundColor: MaterialStateColor.resolveWith(
+                          (states) => Color.fromARGB(255, 68, 134, 233)))),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ButtonStyle(
+                      foregroundColor: MaterialStateColor.resolveWith(
+                          (states) => Color.fromARGB(255, 68, 134, 233)))),
+              floatingActionButtonTheme: FloatingActionButtonThemeData(
+                  backgroundColor: Color.fromARGB(255, 68, 134, 233)),
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            home: snapshot.data == false ? OnBoardingScreen() : Home(), //need to check this
+            home: snapshot.data == false
+                ? OnBoardingScreen()
+                : Home(), //need to check this
           );
         }
       },

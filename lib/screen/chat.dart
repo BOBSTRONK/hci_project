@@ -18,7 +18,12 @@ class _ChatState extends State<Chat> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => _onButtonPressed(),
+            onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+                );
+              },
           ),
         ],
       ),

@@ -9,21 +9,30 @@ import 'package:sound_mode/sound_mode.dart';
 import 'package:sound_mode/utils/ringer_mode_statuses.dart';
 
 import '../model/beacon_model.dart';
+import 'beacon_repository.dart';
 
 enum Status { connected, selfBeacon, scanning }
 
 class DashBoardNotifer extends ChangeNotifier {
-  DashBoardNotifer() {
+  DashBoardNotifer(this.context) {
     _startScanningBeacon();
+    periodicallyScan();
   }
 
   bool loading = false;
   List<List<BeaconModel>> scannedBeacons = <List<BeaconModel>>[];
+  BeaconRepositoryNotifier beaconRepositoryNotifier =
+      BeaconRepositoryNotifier();
+  BuildContext context;
   bool isPaused = false;
   bool? isGranted;
-  String status = "scanning";
+  // 0 = scanning， 1 = connected ，2 = selfBeacon
+  int _status = 0;
+  bool flag1 = false;
+  bool flag2 = false;
   Duration duration = Duration();
-  Timer? timer;
+  Timer? timer_1;
+  Timer? timer_2;
   List<bool> isCheckd = <bool>[];
   late Stream _beaconStream;
   late StreamSubscription<RangingResult> _streamRanging;
@@ -40,23 +49,38 @@ class DashBoardNotifer extends ChangeNotifier {
     }
   }
 
-  Future<void> SetToSilentMode(
-      List<BeaconModel> savedBeacons, BuildContext context) async {
-        if(await checkScanned(savedBeacons, context)){
-          status = "connected";
-          notifyListeners();
-          startTimer();
-        }else{
-          status ="scanning";
-        }
-        notifyListeners();
+  void periodicallyScan() {
+    timer_1 = Timer.periodic(Duration(seconds: 10), (timer) {
+      SetToSilentMode(beaconRepositoryNotifier.savedBeacons, context);
+    });
   }
 
-  
+  Future<void> SetToSilentMode(
+      List<BeaconModel> savedBeacons, BuildContext context) async {
+    if (await checkScanned(savedBeacons, context)) {
+      status = 1;
+    } else {
+      status = 0;
+    }
+    notifyListeners();
+  }
+
+  int get status => _status;
+
+  set status(int newValue) {
+    if (_status != newValue) {
+      ("i start timer here");
+      startTimer();
+    } else if (_status == 0 && _status !=newValue) {
+      print("the duration in seconds: ${duration.inSeconds}");
+    }
+    print("here is the status in the ${_status}");
+    _status = newValue;
+  }
 
   Future<bool> checkScanned(
       List<BeaconModel> savedBeacons, BuildContext context) async {
-    bool result =false;
+    bool result = false;
     for (int i = 0; i < scannedBeacons.length; i++) {
       if (compareTwoBeaconList(savedBeacons, scannedBeacons[i])) {
         await _getPermissionStatus(context);
@@ -65,7 +89,7 @@ class DashBoardNotifer extends ChangeNotifier {
           FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_NONE);
         }
         result = true;
-      } 
+      }
     }
     return result;
   }
@@ -85,7 +109,7 @@ class DashBoardNotifer extends ChangeNotifier {
 
   //start the timer
   void startTimer() {
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
+    timer_2 = Timer.periodic(Duration(seconds: 1), (_) {
       addTime();
     });
   }
@@ -149,19 +173,15 @@ class DashBoardNotifer extends ChangeNotifier {
     final addSeconds = 1;
     final seconds = duration.inSeconds + addSeconds;
     duration = Duration(seconds: seconds);
+    notifyListeners();
   }
 
-  //reset timer
-  void reset() {
-    duration = Duration();
-  }
 
   //stop the timer
-  void stopTimer({bool resets = true}) {
-    if (resets) {
-      reset();
-    }
-    timer?.cancel();
+  void stopTimer() {
+    duration = Duration();
+    timer_2!.cancel();
+    notifyListeners();
   }
 
   //get the permission status of the application
@@ -255,7 +275,8 @@ class DashBoardNotifer extends ChangeNotifier {
         bucket
             .add(BeaconModel.fromJson(element.toJson as Map<String, dynamic>));
       });
-
+      
+      
       BeaconScanned[counter] = List.from(bucket);
       counter = (counter + 1) % 20;
       print(counter);

@@ -35,19 +35,30 @@ class _BeaconListState extends State<BeaconList> {
     );
   }
 
-  @override
   Widget _build() {
     _deviceHeight = MediaQuery.of(context).size.height;
     _deviceWidth = MediaQuery.of(context).size.width;
     return Builder(
       builder: (context) {
         _beaconPageNotifier = context.watch<BeaconPageNotifier>();
-        print(_beaconPageNotifier?.loading);
+        _beaconPageNotifier?.startScanningBeacon();
         _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
         return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
               title: const Text('Beacon List'),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BeaconScannedPage()),
+                    );
+                  },
+                ),
+              ],
             ),
             body: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
