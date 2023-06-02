@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:BeaconGuard/screen/beacon_scanned_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../model/beacon_model.dart';
 import '../service/beacon_repository.dart';
@@ -19,7 +20,11 @@ class _BeaconListState extends State<BeaconList> {
   bool isEditing = false;
   late List<BeaconModel> ListOfTrustedBeacons;
   List<bool> _isChecked = <bool>[];
-  double? _deviceHeight, _deviceWidth;
+  List<int> indexes = [];
+
+  final fireStore =
+      FirebaseFirestore.instance.collection("Beacons").snapshots();
+  CollectionReference ref = FirebaseFirestore.instance.collection("Beacons");
 
   @override
   Widget build(BuildContext context) {
@@ -64,27 +69,63 @@ class _BeaconListState extends State<BeaconList> {
   Widget buildListOfBeacons() {
     ListOfTrustedBeacons = _beaconRepositoryNotifier!.savedBeacons;
     _isChecked = List.filled(ListOfTrustedBeacons.length, false);
-    return ListView.builder(
-      itemCount: ListOfTrustedBeacons.length,
-      itemBuilder: (BuildContext context, int index) {
-        if (isEditing) {
-          return _editCheckBox(index, ListOfTrustedBeacons,);
-        } else {
-          return Card(
-            child: ListTile(
-              leading: Image.asset("images/Beacon+Synergy.png"),
-              title: Text(ListOfTrustedBeacons[index].proximityUUID),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Major:${ListOfTrustedBeacons[index].major.toString()}"),
-                  Text("Minor:${ListOfTrustedBeacons[index].minor.toString()}"),
-                ],
+
+    if (ListOfTrustedBeacons.isEmpty) {
+      return const Center(
+        child: Text("No trusted beacons.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 25,
+                fontWeight: FontWeight.w600)),
+      );
+    }
+
+    return Column(
+      children: [
+        Flexible(
+          child: ListView.builder(
+            itemCount: ListOfTrustedBeacons.length,
+            itemBuilder: (BuildContext context, int index) {
+              if (isEditing) {
+                return _editCheckBox(index, ListOfTrustedBeacons);
+              } else {
+                return Card(
+                  child: ListTile(
+                    leading: Image.asset("images/Beacon+Synergy.png"),
+                    title: Text(ListOfTrustedBeacons[index].proximityUUID),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            "Major:${ListOfTrustedBeacons[index].major.toString()}"),
+                        Text(
+                            "Minor:${ListOfTrustedBeacons[index].minor.toString()}"),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+        if (isEditing)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: FloatingActionButton(
+                onPressed: () =>
+                    _onButtonPressed(indexes, ListOfTrustedBeacons),
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.grey,
+                ),
               ),
             ),
-          );
-        }
-      },
+          )
+      ],
     );
   }
 
@@ -102,19 +143,22 @@ class _BeaconListState extends State<BeaconList> {
   // }
 
   Widget _editCheckBox(
-      int index, List<BeaconModel> beaconList,) {
-    _deviceHeight = MediaQuery.of(context).size.height;
-    _deviceWidth = MediaQuery.of(context).size.width;
+    int index,
+    List<BeaconModel> beaconList,
+  ) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         return Column(
           children: [
             CheckboxListTile(
               onChanged: (value) {
-                print(_isChecked);
-                print("Checkbox onChanged: $value");
                 setState(() {
                   _isChecked[index] = value!;
+                  if (value) {
+                    indexes.add(index);
+                  } else {
+                    indexes.remove(index);
+                  }
                 });
               },
               value: _isChecked[index],
@@ -131,27 +175,13 @@ class _BeaconListState extends State<BeaconList> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: _deviceHeight! * 0.6,
-                left: _deviceWidth! * 0.7,
-              ),
-              child: FloatingActionButton(
-                onPressed: () => _onButtonPressed(),
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.delete_outline,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
           ],
         );
       },
     );
   }
 
-  void _onButtonPressed() {
+  void _onButtonPressed(List<int> indexes, List<BeaconModel> beaconList) {
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -159,7 +189,7 @@ class _BeaconListState extends State<BeaconList> {
             color: const Color(0xFF737373),
             height: 115,
             child: Container(
-              child: _buildBottomNavigationMenu(),
+              child: _buildBottomNavigationMenu(indexes, beaconList),
               decoration: BoxDecoration(
                 color: Theme.of(context).canvasColor,
                 borderRadius: const BorderRadius.only(
@@ -172,17 +202,45 @@ class _BeaconListState extends State<BeaconList> {
         });
   }
 
-  Column _buildBottomNavigationMenu() {
+  Column _buildBottomNavigationMenu(
+      List<int> indexes, List<BeaconModel> beaconList) {
     return Column(
       children: <Widget>[
-        ListTile(
-          title: const Text(
-            'Delete',
-            style: TextStyle(color: Colors.red),
-          ),
-          onTap: () {
-            //delete function
-          },
+        Expanded(
+          child: indexes.isNotEmpty
+              ? ListView.builder(
+                  itemCount: indexes.length,
+                  itemBuilder: (context, index) {
+                    int currentIndex = indexes[index];
+                    return ListTile(
+                      title: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        // Delete function using the current index
+                        ref
+                            .doc(beaconList[currentIndex].id.toString())
+                            .delete();
+
+                        setState(() {
+                          // Remove the index from the list
+                          indexes.removeAt(index);
+                          isEditing = false;
+                          beaconList.removeAt(currentIndex);
+                        });
+
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                )
+              : const ListTile(
+                  title: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
         ),
         const Divider(
           color: Colors.grey,
