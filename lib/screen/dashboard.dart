@@ -47,7 +47,7 @@ class _DashboardState extends State<Dashboard> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text('Beacon Guard'),
-          actions: [
+          /*actions: [
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
@@ -57,7 +57,7 @@ class _DashboardState extends State<Dashboard> {
                 );
               },
             ),
-          ],
+          ],*/
         ),
         body: Column(
           children: [

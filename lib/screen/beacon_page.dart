@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../model/beacon_model.dart';
 import '../service/beacon_repository.dart';
@@ -18,8 +19,12 @@ class _BeaconPageState extends State<BeaconPage> {
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
   DashBoardNotifer? _dashBoardNotifer;
   bool isEditing = false;
-  late List<BeaconModel> ListOfTrustedBeacons;
+  //late List<BeaconModel> ListOfTrustedBeacons;
   List<bool> _isChecked = <bool>[];
+
+  final fireStore =
+      FirebaseFirestore.instance.collection("Beacons").snapshots();
+  CollectionReference ref = FirebaseFirestore.instance.collection("Beacons");
 
   @override
   Widget build(BuildContext context) {
@@ -117,69 +122,153 @@ class _BeaconPageState extends State<BeaconPage> {
                 selector: (context, beaconRepositoryNotifier) =>
                     beaconRepositoryNotifier.savedBeacons,
                 builder: (_, savedBeacons, child) {
-                  if (savedBeacons.isEmpty) {
-                    return Column(
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 10),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Trusted Beacons",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
+                  if (isEditing) {
+                    if (savedBeacons.isEmpty) {
+                      return Column(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 10, bottom: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Trusted Beacons",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                              ),
                             ),
                           ),
-                        ),
-                        Center(
-                          child: Text("No trusted beacons.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w600)),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only( bottom: 10),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Trusted Beacons",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 18),
+                          Center(
+                            child: Text("No trusted beacons.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.blueAccent,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10, bottom: 8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Trusted Beacons",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                              ),
                             ),
                           ),
-                        ),
-                        ListView.builder(
-                            itemCount: savedBeacons.length,
-                            shrinkWrap: true,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Card(
-                                child: ListTile(
-                                  leading:
-                                      Image.asset("images/Beacon+Synergy.png"),
-                                  title:
-                                      Text(savedBeacons[index].proximityUUID),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "Major:${savedBeacons[index].major.toString()}"),
-                                      Text(
-                                          "Minor:${savedBeacons[index].minor.toString()}"),
-                                    ],
+                          Container(
+                            height: 240, // Set a fixed height for the container
+                            child: ListView.builder(
+                              itemCount: savedBeacons.length,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Card(
+                                  child: ListTile(
+                                    onTap: () {
+                                      _onButtonPressed(
+                                          index, savedBeacons);
+                                    },
+                                    trailing: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Icon(Icons.delete_outline),
+                                    ),
+                                    leading: Image.asset(
+                                        "images/Beacon+Synergy.png"),
+                                    title:
+                                        Text(savedBeacons[index].proximityUUID),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            "Major: ${savedBeacons[index].major.toString()}"),
+                                        Text(
+                                            "Minor: ${savedBeacons[index].minor.toString()}"),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            }),
-                      ],
-                    );
+                                );
+                              },
+                            ),
+                          )
+                        ],
+                      );
+                    }
+                  } else {
+                    if (savedBeacons.isEmpty) {
+                      return Column(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 10, bottom: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Trusted Beacons",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text("No trusted beacons.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.blueAccent,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10, bottom: 8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Trusted Beacons",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 18),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 240, // Set a fixed height for the container
+                            child: ListView.builder(
+                              itemCount: savedBeacons.length,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Card(
+                                  child: ListTile(
+                                    leading: Image.asset(
+                                        "images/Beacon+Synergy.png"),
+                                    title:
+                                        Text(savedBeacons[index].proximityUUID),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            "Major: ${savedBeacons[index].major.toString()}"),
+                                        Text(
+                                            "Minor: ${savedBeacons[index].minor.toString()}"),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        ],
+                      );
+                    }
                   }
                 },
               ))
@@ -238,8 +327,8 @@ class _BeaconPageState extends State<BeaconPage> {
     );
   }
 
-    //add beacon to the trusted beacon List
-   Future<void> addBeaconToTrustList(
+  //add beacon to the trusted beacon List
+  Future<void> addBeaconToTrustList(
       List<BeaconModel> beacons, List<bool> checkList) async {
     List<BeaconModel?> selectedBeacons = List.generate(checkList.length,
             (index) => checkList[index] ? beacons[index] : null)
@@ -248,11 +337,65 @@ class _BeaconPageState extends State<BeaconPage> {
     print(selectedBeacons);
     List<BeaconModel> beaconsToAdd = <BeaconModel>[];
     selectedBeacons.forEach((element) {
-      beaconsToAdd
-          .add(element!);
+      beaconsToAdd.add(element!);
     });
     beaconsToAdd.forEach((element) {
       _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
     });
+  }
+
+  void _onButtonPressed(int index, List<BeaconModel> beaconList) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: const Color(0xFF737373),
+            height: 115,
+            child: Container(
+              child: _buildBottomNavigationMenu(index, beaconList),
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Column _buildBottomNavigationMenu(int index, List<BeaconModel> beaconList) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: const Text(
+            'Delete',
+            style: TextStyle(color: Colors.red),
+          ),
+          onTap: () {
+            // Delete function using the current index
+            ref.doc(beaconList[index].id.toString()).delete();
+            setState(() {
+              beaconList.removeAt(index);
+              isEditing = false;
+            });
+
+            Navigator.pop(context);
+          },
+        ),
+        const Divider(
+          color: Colors.grey,
+          height: 0.8,
+          thickness: 1,
+        ),
+        ListTile(
+          title: const Text('Cancel'),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
   }
 }
