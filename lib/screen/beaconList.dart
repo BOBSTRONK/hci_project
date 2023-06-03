@@ -149,6 +149,9 @@ class _BeaconListState extends State<BeaconList> {
       builder: (BuildContext context, StateSetter setState) {
         return Column(
           children: [
+            SizedBox(
+              height: 2.5,
+            ),
             CheckboxListTile(
               onChanged: (value) {
                 setState(() {
@@ -173,6 +176,11 @@ class _BeaconListState extends State<BeaconList> {
                   Text("Minor: ${beaconList[index].minor.toString()}"),
                 ],
               ),
+            ),
+            const Divider(
+              color: Colors.grey,
+              height: 0.8,
+              thickness: 1,
             ),
           ],
         );
@@ -200,6 +208,22 @@ class _BeaconListState extends State<BeaconList> {
           );
         });
   }
+
+  /*Future<void> addBeaconToTrustList(
+      List<BeaconModel> beacons, List<bool> checkList) async {
+    List<BeaconModel?> selectedBeacons = List.generate(checkList.length,
+            (index) => checkList[index] ? beacons[index] : null)
+        .where((element) => element != null)
+        .toList();
+    List<BeaconModel> beaconsToAdd = <BeaconModel>[];
+    selectedBeacons.forEach((element) {
+      beaconsToAdd
+          .add(BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
+    });
+    beaconsToAdd.forEach((element) {
+      _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
+    });
+  }*/
 
   Column _buildBottomNavigationMenu(
       List<int> indexes, List<BeaconModel> beaconList) {

@@ -22,7 +22,7 @@ class BeaconScannedPage extends StatefulWidget {
 class _BeaconScannedPageState extends State<BeaconScannedPage> {
   BeaconPageNotifier? _beaconPageNotifier;
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
-  List<bool> _isChecked = <bool>[];
+  //List<bool> _isChecked = <bool>[];
   bool? isGranted;
 
   Widget _buildUI() {
@@ -62,7 +62,7 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
               title: Text("Add Beacons"),
             ),
             body: body,
-            floatingActionButton: FloatingActionButton(
+            /*floatingActionButton: FloatingActionButton(
               onPressed: () {
                 /*showDialog(
                     context: context,
@@ -79,52 +79,81 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                 Icons.add,
                 color: Colors.grey,
               ),
-            ),
+            ),*/
           );
         },
       );
     });
   }
 
-  // Widget confirmationDialog(List<Beacon> beacons, List<bool> checkList) {
-  //   return AlertDialog(
-  //     title: Text("Info"),
-  //     content: Text(
-  //         "This action adds the beacons to the trusted list, enabling your device to automatically switch to Silent Mode when it detects those beacons nearby."),
-  //     actions: [
-  //       TextButton(
-  //           onPressed: () {
-  //             Navigator.pop(context);
-  //           },
-  //           child: Text(
-  //             "Cancel",
-  //             style: TextStyle(color: Colors.red),
-  //           )),
-  //       TextButton(
-  //           onPressed: () {
-  //             addBeaconToTrustList(beacons, checkList);
-  //             Navigator.pop(context);
-  //           },
-  //           child: Text("Confirm")),
-  //     ],
-  //   );
-  // }
+  Widget confirmationDialog(List<BeaconModel> beacons, int index) {
+    return AlertDialog(
+      title: Text("Info"),
+      content: Text("Are you sure you want to add this beacon?"),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            )),
+        TextButton(
+            onPressed: () {
+              addBeaconToTrustList(beacons, index);
+              Navigator.pop(context);
+            },
+            child: Text("Confirm")),
+      ],
+    );
+  }
 
   Widget buildListOfBeacons(List<BeaconModel> beacons) {
-    _isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
+    //_isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        return ListView.separated(
-          padding: const EdgeInsets.only(top: 20, right: 16),
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: _beaconPageNotifier!.scannedBeacons.length,
+        return ListView.builder(
+          itemCount: _beaconRepositoryNotifier!.savedBeacons.length,
           itemBuilder: (BuildContext context, int index) {
+            bool isInCompareList = compareTwoBeaconList(
+                    _beaconRepositoryNotifier!.savedBeacons,
+                    _beaconPageNotifier!.scannedBeacons)
+                .contains(beacons[index]);
+            Widget icon;
+
+            if (isInCompareList) {
+              icon = Icon(
+                Icons.check_circle_outline,
+                color: Colors.blueGrey,
+                size: 30,
+              );
+            } else {
+              icon = Icon(
+                Icons.add_circle,
+                color: Colors.blueAccent,
+                size: 30,
+              );
+            }
             return GestureDetector(
               onTap: () {
                 _beaconPageNotifier!.pauseScanning_15();
               },
               child: Card(
-                child: CheckboxListTile(
+                child: ListTile(
+                  onTap: () {
+                    if (isInCompareList) {
+                      _beaconPageNotifier!.pauseScanning_15();
+                      confirmationDialog(
+                          _beaconPageNotifier!.scannedBeacons, index);
+                    }
+                  },
+                  leading: Image.asset("images/Beacon+Synergy.png"),
+                  trailing: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: icon,
+                  ),
+                  /*Checkbox(
                   onChanged: (value) {
                     setState(() {
                       _isChecked[index] = value!;
@@ -135,10 +164,8 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                     });
                   },
                   value: _isChecked[index],
-                  secondary: const CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: AssetImage("images/Beacon+Synergy.png"),
-                  ),
+                ),*/
+                  //tileColor: _isChecked[index] ? Colors.green : null,
                   title: Text(beacons[index].proximityUUID),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,19 +185,10 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
   }
 
   Future<void> addBeaconToTrustList(
-      List<BeaconModel> beacons, List<bool> checkList) async {
-    List<BeaconModel?> selectedBeacons = List.generate(checkList.length,
-            (index) => checkList[index] ? beacons[index] : null)
-        .where((element) => element != null)
-        .toList();
-    List<BeaconModel> beaconsToAdd = <BeaconModel>[];
-    selectedBeacons.forEach((element) {
-      beaconsToAdd
-          .add(BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
-    });
-    beaconsToAdd.forEach((element) {
-      _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
-    });
+      List<BeaconModel> beacons, int index) async {
+    beacons.add(
+        BeaconModel.fromJson(beacons[index].toJson as Map<String, dynamic>));
+    _beaconRepositoryNotifier!.addBeaconToDataBase(beacons[index], context);
   }
 
   @override
@@ -188,11 +206,10 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
   }
 
   //compare beacons, return a list of beacons without saved beacons
-  List<Beacon> compareTwoBeaconList(
-      List<Beacon> savedBeacons, List<BeaconModel> scannedBeacons) {
-    List<Beacon> result = [];
-    var scanned = scannedBeacons.cast<Beacon>();
-    scanned.forEach((element) {
+  List<BeaconModel> compareTwoBeaconList(
+      List<BeaconModel> savedBeacons, List<BeaconModel> scannedBeacons) {
+    List<BeaconModel> result = [];
+    scannedBeacons.forEach((element) {
       for (var i = 0; i < savedBeacons.length; i++) {
         if (element != savedBeacons[i]) {
           result.add(element);
