@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:BeaconGuard/model/history_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_dnd/flutter_dnd.dart';
@@ -33,8 +32,6 @@ class DashBoardNotifer extends ChangeNotifier {
   bool flag1 = false;
   bool flag2 = false;
   Duration duration = Duration();
-  DateTime? start_Time;
-  DateTime? end_Time;
   Timer? timer_1;
   Timer? timer_2;
   List<bool> isCheckd = <bool>[];
@@ -114,7 +111,6 @@ class DashBoardNotifer extends ChangeNotifier {
 
   //start the timer
   void startTimer() {
-    start_Time =DateTime.now();
     timer_2 = Timer.periodic(Duration(seconds: 1), (_) {
       addTime();
     });
@@ -185,9 +181,6 @@ class DashBoardNotifer extends ChangeNotifier {
   //stop the timer
   void stopTimer() {
     print("the duration of timer: ${duration.inSeconds}");
-    end_Time=DateTime.now();
-    History history = History(startTime: start_Time!, endTime:end_Time!, duration: duration.inSeconds);
-    beaconRepositoryNotifier.addHistoryDataBase(history, context);
     duration = Duration();
     timer_2!.cancel();
     notifyListeners();

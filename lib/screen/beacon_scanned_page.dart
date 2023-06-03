@@ -74,7 +74,6 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                     });*/
                 addBeaconToTrustList(
                     _beaconPageNotifier!.scannedBeacons, _isChecked);
-                Navigator.pop(context);
               },
               backgroundColor: Colors.white,
               child: Icon(
@@ -165,10 +164,11 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
             (index) => checkList[index] ? beacons[index] : null)
         .where((element) => element != null)
         .toList();
+    print(selectedBeacons);
     List<BeaconModel> beaconsToAdd = <BeaconModel>[];
     selectedBeacons.forEach((element) {
       beaconsToAdd
-          .add(BeaconModel.fromJson(element!.toJson as Map<String, dynamic>));
+          .add(element!);
     });
     beaconsToAdd.forEach((element) {
       _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);

@@ -1,3 +1,4 @@
+import 'package:BeaconGuard/screen/beacon_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sound_mode/permission_handler.dart';
 import 'screen/chat.dart';
@@ -144,7 +145,7 @@ class _HomeState extends State<Home> {
                     minWidth: _deviceWidth! / 3,
                     onPressed: () {
                       setState(() {
-                        currentScreen = BeaconList();
+                        currentScreen = BeaconPage();
                         currentTab = 2;
                       });
                     },
