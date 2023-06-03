@@ -68,14 +68,15 @@ class DashBoardNotifer extends ChangeNotifier {
   int get status => _status;
 
   set status(int newValue) {
-    if (_status != newValue) {
-      ("i start timer here");
+    if (_status != newValue && newValue == 1) {
+      _status = newValue;
+      print("i start timer here");
       startTimer();
-    } else if (_status == 0 && _status !=newValue) {
+    } else if (_status != newValue && newValue == 0) {
       print("the duration in seconds: ${duration.inSeconds}");
+      _status = newValue;
+      stopTimer();
     }
-    print("here is the status in the ${_status}");
-    _status = newValue;
   }
 
   Future<bool> checkScanned(
@@ -176,9 +177,9 @@ class DashBoardNotifer extends ChangeNotifier {
     notifyListeners();
   }
 
-
   //stop the timer
   void stopTimer() {
+    print("the duration of timer: ${duration.inSeconds}");
     duration = Duration();
     timer_2!.cancel();
     notifyListeners();
@@ -275,8 +276,7 @@ class DashBoardNotifer extends ChangeNotifier {
         bucket
             .add(BeaconModel.fromJson(element.toJson as Map<String, dynamic>));
       });
-      
-      
+
       BeaconScanned[counter] = List.from(bucket);
       counter = (counter + 1) % 20;
       print(counter);

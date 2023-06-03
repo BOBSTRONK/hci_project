@@ -71,7 +71,6 @@ class _DashboardState extends State<Dashboard> {
                   return ConnectedView();
                 } else {
                   print("the status is ${status}");
-
                   return ScanningView();
                 }
               },
