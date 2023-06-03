@@ -21,6 +21,7 @@ class DashBoardNotifer extends ChangeNotifier {
 
   bool loading = false;
   List<List<BeaconModel>> scannedBeacons = <List<BeaconModel>>[];
+  List<BeaconModel> scannedBeaconForBeaconScannedPage = <BeaconModel>[];
   BeaconRepositoryNotifier beaconRepositoryNotifier =
       BeaconRepositoryNotifier();
   BuildContext context;
@@ -225,10 +226,10 @@ class DashBoardNotifer extends ChangeNotifier {
   @override
   void dispose() {
     // TODO: implement dispose
-    _streamRanging.cancel();
   }
 
   void pauseScanning_15() {
+    print("pause for 15");
     _streamRanging.pause();
     Timer(const Duration(seconds: 15), () {
       _streamRanging.resume();
@@ -278,6 +279,7 @@ class DashBoardNotifer extends ChangeNotifier {
       });
 
       BeaconScanned[counter] = List.from(bucket);
+      scannedBeaconForBeaconScannedPage = List.from(bucket);
       counter = (counter + 1) % 20;
       print(counter);
       print(BeaconScanned);

@@ -40,10 +40,10 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
           ),
         );
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
-        var finalList = compareTwoBeaconList(
-            _beaconPageNotifier!.scannedBeacons,
-            _beaconRepositoryNotifier!.savedBeacons);
-        body = buildListOfBeacons(finalList);
+        // var finalList = compareTwoBeaconList(
+        //     _beaconPageNotifier!.scannedBeacons,
+        //     _beaconRepositoryNotifier!.savedBeacons);
+        body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
       } else {
         body = const Center(
           child: Text("No beacons have been found in close proximity.",
@@ -86,31 +86,31 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
     });
   }
 
-  Widget confirmationDialog(List<Beacon> beacons, List<bool> checkList) {
-    return AlertDialog(
-      title: Text("Info"),
-      content: Text(
-          "This action adds the beacons to the trusted list, enabling your device to automatically switch to Silent Mode when it detects those beacons nearby."),
-      actions: [
-        TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.red),
-            )),
-        TextButton(
-            onPressed: () {
-              addBeaconToTrustList(beacons, checkList);
-              Navigator.pop(context);
-            },
-            child: Text("Confirm")),
-      ],
-    );
-  }
+  // Widget confirmationDialog(List<Beacon> beacons, List<bool> checkList) {
+  //   return AlertDialog(
+  //     title: Text("Info"),
+  //     content: Text(
+  //         "This action adds the beacons to the trusted list, enabling your device to automatically switch to Silent Mode when it detects those beacons nearby."),
+  //     actions: [
+  //       TextButton(
+  //           onPressed: () {
+  //             Navigator.pop(context);
+  //           },
+  //           child: Text(
+  //             "Cancel",
+  //             style: TextStyle(color: Colors.red),
+  //           )),
+  //       TextButton(
+  //           onPressed: () {
+  //             addBeaconToTrustList(beacons, checkList);
+  //             Navigator.pop(context);
+  //           },
+  //           child: Text("Confirm")),
+  //     ],
+  //   );
+  // }
 
-  Widget buildListOfBeacons(List<Beacon> beacons) {
+  Widget buildListOfBeacons(List<BeaconModel> beacons) {
     _isChecked = List.filled(_beaconPageNotifier!.scannedBeacons.length, false);
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
@@ -132,7 +132,6 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
                       print(_isChecked);
                       print(_beaconRepositoryNotifier!
                           .savedBeacons[0].proximityUUID);
-                      print(beacons[0].toJson["proximityUUID"]);
                     });
                   },
                   value: _isChecked[index],
@@ -159,8 +158,8 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
   }
 
   Future<void> addBeaconToTrustList(
-      List<Beacon> beacons, List<bool> checkList) async {
-    List<Beacon?> selectedBeacons = List.generate(checkList.length,
+      List<BeaconModel> beacons, List<bool> checkList) async {
+    List<BeaconModel?> selectedBeacons = List.generate(checkList.length,
             (index) => checkList[index] ? beacons[index] : null)
         .where((element) => element != null)
         .toList();

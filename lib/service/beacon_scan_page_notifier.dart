@@ -18,7 +18,7 @@ class BeaconPageNotifier extends ChangeNotifier {
   }
 
   bool loading = false;
-  List<Beacon> scannedBeacons = <Beacon>[];
+  List<BeaconModel> scannedBeacons = <BeaconModel>[];
   bool isPaused = false;
   bool? isGranted;
   String status = "scanning";
@@ -26,8 +26,6 @@ class BeaconPageNotifier extends ChangeNotifier {
   Timer? timer;
   List<bool> isCheckd = <bool>[];
   late StreamSubscription<RangingResult> _streamRanging;
-
-
 
   Future<void> InitBeaconPermission() async {
     try {
@@ -40,7 +38,6 @@ class BeaconPageNotifier extends ChangeNotifier {
       // failed to initialize
     }
   }
-
 
   @override
   void dispose() {
@@ -63,11 +60,11 @@ class BeaconPageNotifier extends ChangeNotifier {
       timer.cancel();
     });
   }
-  
+
   Future<void> startScanningBeacon() async {
     loading = true;
     final regions = <Region>[];
-    List<Beacon> BeaconScanned = <Beacon>[];
+    List<BeaconModel> BeaconScanned = <BeaconModel>[];
 
     if (Platform.isIOS) {
       // iOS platform, at least set identifier and proximityUUID for region scanning
@@ -84,12 +81,18 @@ class BeaconPageNotifier extends ChangeNotifier {
         flutterBeacon.ranging(regions).listen((RangingResult result) {
       // result contains a region and list of beacons found
       // list can be empty if no matching beacons were found in range
+      List<BeaconModel> bucket = <BeaconModel>[];
       print("result of beacons: ${result.beacons}");
       print("Regions: ${result.region}");
-      BeaconScanned = result.beacons;
+      result.beacons.forEach((element) {
+              bucket.add(BeaconModel.fromJson(element.toJson as Map<String,dynamic>));
+
+      });
+
+      BeaconScanned = List.from(bucket);
       scannedBeacons = BeaconScanned;
       loading = false;
-         notifyListeners();
+      notifyListeners();
     });
   }
 }

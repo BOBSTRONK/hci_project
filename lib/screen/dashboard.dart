@@ -36,6 +36,7 @@ class _DashboardState extends State<Dashboard> {
   double? _deviceHeight, _deviceWidth;
   Timer? timer;
   late final myDashBoardNotifier;
+  bool? phoneBecomeBeacon;
 
   @override
   Widget build(BuildContext context) {
@@ -90,48 +91,48 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
   }
 
-  Widget _build(BuildContext context) {
-    _deviceHeight = MediaQuery.of(context).size.height;
-    _deviceWidth = MediaQuery.of(context).size.width;
-    return Builder(builder: (context) {
-      _dashBoardNotifier = context.watch<DashBoardNotifer>();
-      _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
-      Widget? body;
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        DetectedToSilentMode(_beaconRepositoryNotifier!.savedBeacons);
-      });
-      if (!phoneBecomeBeacon) {
-        if (_dashBoardNotifier!.status == "connected") {
-          body = ConnectedView();
-        } else if (_dashBoardNotifier!.status == "scanning") {
-          body = ScanningView();
-        }
-      } else {
-        body = BecomeBeaconView();
-      }
+  // Widget _build(BuildContext context) {
+  //   _deviceHeight = MediaQuery.of(context).size.height;
+  //   _deviceWidth = MediaQuery.of(context).size.width;
+  //   return Builder(builder: (context) {
+  //     _dashBoardNotifier = context.watch<DashBoardNotifer>();
+  //     _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
+  //     Widget? body;
+  //     WidgetsBinding.instance!.addPostFrameCallback((_) {
+  //       DetectedToSilentMode(_beaconRepositoryNotifier!.savedBeacons);
+  //     });
+  //     if (!phoneBecomeBeacon!) {
+  //       if (_dashBoardNotifier!.status == "connected") {
+  //         body = ConnectedView();
+  //       } else if (_dashBoardNotifier!.status == "scanning") {
+  //         body = ScanningView();
+  //       }
+  //     } else {
+  //       body = BecomeBeaconView();
+  //     }
 
-      return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('Beacon Guard'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-              );
-            },
-            ),
-          ],
-        ),
-        //try to use selector to only listen to the status
-        body: body,
-      );
-    });
-  }
+  //     return Scaffold(
+  //       backgroundColor: Colors.white,
+  //       appBar: AppBar(
+  //         automaticallyImplyLeading: false,
+  //         title: Text('Beacon Guard'),
+  //         actions: [
+  //           IconButton(
+  //             icon: Icon(Icons.add),
+  //             onPressed: () {
+  //             Navigator.push(
+  //               context,
+  //               MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+  //             );
+  //           },
+  //           ),
+  //         ],
+  //       ),
+  //       //try to use selector to only listen to the status
+  //       body: body,
+  //     );
+  //   });
+  // }
 
   Widget ConnectedView() {
     return Padding(
