@@ -32,25 +32,18 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
 
       Widget? body;
       if (_beaconPageNotifier!.loading == true) {
-        body = Column(
-          children: [
-            buildListOfBeacons(_beaconPageNotifier!.scannedBeacons),
-            SizedBox(height: 16),
-            const Center(
-              child: Text(
-                'Scanned Beacons',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ],
+        body = Container(
+          alignment: Alignment.center,
+          child: CircularProgressIndicator.adaptive(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          ),
         );
       } else if (_beaconPageNotifier!.scannedBeacons.isNotEmpty) {
-        body = buildListOfBeacons(_beaconPageNotifier!.scannedBeacons);
+        var finalList = compareTwoBeaconList(
+            _beaconPageNotifier!.scannedBeacons,
+            _beaconRepositoryNotifier!.savedBeacons);
+        body = buildListOfBeacons(finalList);
       } else {
         body = const Center(
           child: Text("No beacons have been found in close proximity.",
@@ -69,22 +62,24 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
               title: Text("Add Beacons"),
             ),
             body: body,
-            /*floatingActionButton: SizedBox(
-                height: 60,
-                child: ElevatedButton(
-                  child: Text(
-                    "Add Beacon to the trust beacon list",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return confirmationDialog(
-                              _beaconPageNotifier!.scannedBeacons, _isChecked);
-                        });
-                  },
-                )),*/
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                /*showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return confirmationDialog(
+                          _beaconPageNotifier!.scannedBeacons, _isChecked);
+                    });*/
+                addBeaconToTrustList(
+                    _beaconPageNotifier!.scannedBeacons, _isChecked);
+                Navigator.pop(context);
+              },
+              backgroundColor: Colors.white,
+              child: Icon(
+                Icons.add,
+                color: Colors.grey,
+              ),
+            ),
           );
         },
       );
@@ -191,5 +186,20 @@ class _BeaconScannedPageState extends State<BeaconScannedPage> {
       ],
       child: _buildUI(),
     );
+  }
+
+  //compare beacons, return a list of beacons without saved beacons
+  List<Beacon> compareTwoBeaconList(
+      List<Beacon> savedBeacons, List<BeaconModel> scannedBeacons) {
+    List<Beacon> result = [];
+    var scanned = scannedBeacons.cast<Beacon>();
+    scanned.forEach((element) {
+      for (var i = 0; i < savedBeacons.length; i++) {
+        if (element != savedBeacons[i]) {
+          result.add(element);
+        }
+      }
+    });
+    return result;
   }
 }

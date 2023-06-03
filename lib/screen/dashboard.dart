@@ -100,11 +100,16 @@ class _DashboardState extends State<Dashboard> {
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         DetectedToSilentMode(_beaconRepositoryNotifier!.savedBeacons);
       });
-      if (_dashBoardNotifier!.status == "connected") {
-        body = ConnectedView();
-      } else if (_dashBoardNotifier!.status == "scanning") {
-        body = ScanningView();
+      if (!phoneBecomeBeacon) {
+        if (_dashBoardNotifier!.status == "connected") {
+          body = ConnectedView();
+        } else if (_dashBoardNotifier!.status == "scanning") {
+          body = ScanningView();
+        }
+      } else {
+        body = BecomeBeaconView();
       }
+
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -114,11 +119,11 @@ class _DashboardState extends State<Dashboard> {
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-                );
-              },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BeaconScannedPage()),
+              );
+            },
             ),
           ],
         ),
@@ -130,7 +135,7 @@ class _DashboardState extends State<Dashboard> {
 
   Widget ConnectedView() {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Column(
         children: [
           Container(
@@ -175,6 +180,7 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
+                  phoneBecomeBeacon = true;
                   becomeBeacon();
                 },
               ),
@@ -220,10 +226,10 @@ class _DashboardState extends State<Dashboard> {
 
   Widget ScanningView() {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          Container(
+          SizedBox(
             height: 100,
             child: Card(
               elevation: 2, // Adjust the elevation for the shadow effect
@@ -238,16 +244,16 @@ class _DashboardState extends State<Dashboard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Image.asset(
                         "images/beaconIcon.jpeg",
                         width: 58,
                         height: 58,
                       ),
-                      SizedBox(
+                      const SizedBox(
                           width:
                               10), // Add spacing between the leading icon and title
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Click to Enable Phone As Beacon',
                           //Click to Enable to Connect to Beacon
@@ -265,7 +271,107 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
+                  phoneBecomeBeacon = true;
                   becomeBeacon();
+                },
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Image.asset(
+            "images/scanning.gif",
+            width: _deviceWidth! * 0.65,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 15, right: 15, left: 15, bottom: 28),
+            child: Text(
+              "Scanning for trusted beacons near you.",
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
+            ),
+          ),
+           Padding(
+            padding: EdgeInsets.only(left: 15.0, bottom: 10.0, right: 15),
+            child: Column(
+              children: const [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Time Connected",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "When you are connected to a beacon, the time scheduler will be displayed here.",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget BecomeBeaconView() {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Container(
+            height: 100,
+            child: Card(
+              elevation: 2, // Adjust the elevation for the shadow effect
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                contentPadding:
+                    EdgeInsets.zero, // Remove the default content padding
+                title: Center(
+                  // Align the content at the center
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 20),
+                      Icon(Icons.bluetooth),
+                      SizedBox(
+                          width:
+                              10), // Add spacing between the leading icon and title
+                      Expanded(
+                        child: Text(
+                          'Click to Scan Beacon',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Image.asset(
+                        "images/beaconIcon.jpeg",
+                        width: 58,
+                        height: 58,
+                      ),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                onTap: () {
+                  phoneBecomeBeacon = false;
                 },
               ),
             ),
@@ -274,11 +380,19 @@ class _DashboardState extends State<Dashboard> {
             height: 20,
           ),
           Container(
-            child: Image.asset("images/connected.gif"),
+            child: Image.asset(
+              "images/becomeBeacon.gif",
+              width: _deviceWidth! * 0.85,
+            ),
           ),
-          Text("Swithced into No Disturb mode due to trust Beacon in nearby"),
-          SizedBox(
-            height: 15,
+          SizedBox(height: 40,),
+          const Padding(
+            padding: EdgeInsets.only(top: 20, right: 15, left: 15, bottom: 35),
+            child: Text(
+              "The phone acts as a beacon, it automatically triggers silent mode on other users' phones when detected.",
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
+            ),
           ),
         ],
       ),
