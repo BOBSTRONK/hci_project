@@ -61,20 +61,22 @@ class _DashboardState extends State<Dashboard> {
         ),
         body: Column(
           children: [
-            Selector<DashBoardNotifer, int>(
-              selector: (context, dashBoardNotifier) =>
-                  dashBoardNotifier.status,
-              builder: (_, status, child) {
-                if (status == 1) {
-                  status = 1;
-                  //startTimer();
-                  print("the status is ${status}");
-                  return ConnectedView();
-                } else {
-                  print("the status is ${status}");
-                  return ScanningView();
-                }
-              },
+            Material(
+              child: Selector<DashBoardNotifer, int>(
+                selector: (context, dashBoardNotifier) =>
+                    dashBoardNotifier.status,
+                builder: (_, status, child) {
+                  if (status == 1) {
+                    status = 1;
+                    //startTimer();
+                    print("the status is ${status}");
+                    return ConnectedView();
+                  } else {
+                    print("the status is ${status}");
+                    return ScanningView();
+                  }
+                },
+              ),
             ),
           ],
         ));

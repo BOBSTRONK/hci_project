@@ -15,17 +15,6 @@ class _ChatState extends State<Chat> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('History'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BeaconScannedPage()),
-              );
-            },
-          ),
-        ],
       ),
       body: Center(
           child: Text(

@@ -20,6 +20,8 @@ class BeaconScannedPage extends StatefulWidget {
 }
 
 class _BeaconScannedPageState extends State<BeaconScannedPage> {
+
+  //可以用selector，然后直接create a instance of dashBoardNotifier来使用pause
   BeaconPageNotifier? _beaconPageNotifier;
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
   List<bool> _isChecked = <bool>[];

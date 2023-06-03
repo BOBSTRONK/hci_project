@@ -15,10 +15,12 @@ BeaconModel _$BeaconModelFromJson(Map<String, dynamic> json) => BeaconModel(
       rssi: json['rssi'] as int?,
       proximity: json['proximity'] as String?,
       txPower: json['txPower'] as int?,
+      id: json['id'] as String?,
     );
 
 Map<String, dynamic> _$BeaconModelToJson(BeaconModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'proximityUUID': instance.proximityUUID,
       'major': instance.major,
       'minor': instance.minor,
