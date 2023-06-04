@@ -64,55 +64,110 @@ class _BeaconPageState extends State<BeaconPage> {
                   selector: (context, dashBoardNotifier) =>
                       dashBoardNotifier.scannedBeaconForBeaconScannedPage,
                   builder: (_, scannedBeaconForBeaconScannedPage, child) {
-                    if (scannedBeaconForBeaconScannedPage.isNotEmpty) {
-                      return Column(
-                        children: [
-                          const Padding(
-                            padding:
-                                EdgeInsets.only(top: 15, bottom: 5, left: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Scanned Beacons",
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
+                    if (isEditing) {
+                      if (scannedBeaconForBeaconScannedPage.isNotEmpty) {
+                        return Column(
+                          children: [
+                            const Padding(
+                              padding:
+                                  EdgeInsets.only(top: 15, bottom: 5, left: 10),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Scanned Beacons",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            height: 240, // Set a fixed height for the container
-                            child: buildListOfBeacons(
-                                scannedBeaconForBeaconScannedPage,
-                                _beaconRepositoryNotifier!.savedBeacons),
-                          )
-                        ],
-                      );
+                            Container(
+                              height:
+                                  240, // Set a fixed height for the container
+                              child: buildListOfBeaconsEdit(
+                                  scannedBeaconForBeaconScannedPage,
+                                  _beaconRepositoryNotifier!.savedBeacons),
+                            )
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  top: 15, bottom: 10, left: 10),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Scanned Beacons",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                  "No beacons have been found in close proximity.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.blueAccent,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600)),
+                            )
+                          ],
+                        );
+                      }
                     } else {
-                      return Column(
-                        children: const [
-                          Padding(
-                            padding:
-                                EdgeInsets.only(top: 15, bottom: 10, left: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Scanned Beacons",
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 18),
+                      if (scannedBeaconForBeaconScannedPage.isNotEmpty) {
+                        return Column(
+                          children: [
+                            const Padding(
+                              padding:
+                                  EdgeInsets.only(top: 15, bottom: 5, left: 10),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Scanned Beacons",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                ),
                               ),
                             ),
-                          ),
-                          Center(
-                            child: Text(
-                                "No beacons have been found in close proximity.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w600)),
-                          )
-                        ],
-                      );
+                            Container(
+                              height:
+                                  240, // Set a fixed height for the container
+                              child: buildListOfBeacons(
+                                  scannedBeaconForBeaconScannedPage,
+                                  _beaconRepositoryNotifier!.savedBeacons),
+                            )
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  top: 15, bottom: 10, left: 10),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Scanned Beacons",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                  "No beacons have been found in close proximity.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.blueAccent,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600)),
+                            )
+                          ],
+                        );
+                      }
                     }
                   },
                 ),
@@ -285,12 +340,66 @@ class _BeaconPageState extends State<BeaconPage> {
     });
   }
 
+  Widget buildListOfBeaconsEdit(
+      List<BeaconModel> beacons, List<BeaconModel> savedbeacons) {
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 20, right: 16, left: 10),
+          shrinkWrap: true,
+          itemCount: beacons.length,
+          itemBuilder: (BuildContext context, int index) {
+            var result = compareTwoBeaconList(savedbeacons, index, beacons);
+            return GestureDetector(
+              onTap: () {
+                _dashBoardNotifer!.pauseScanning_15();
+              },
+              child: Card(
+                child: ListTile(
+                  onTap: () {
+                    if (result) {
+                      _onButtonPressed(index, beacons);
+                    } else {
+                      _onButtonPressedAdd(index, beacons);
+                    }
+                  },
+                  leading: Image.asset("images/Beacon+Synergy.png"),
+                  title: Text(beacons[index].proximityUUID),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Major:${beacons[index].major.toString()}"),
+                      Text("Minor:${beacons[index].minor.toString()}"),
+                      Text("Distance:${beacons[index].accuracy} M")
+                    ],
+                  ),
+                  trailing: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Visibility(
+                      visible: result,
+                      child: Icon(
+                        Icons.delete_outline,
+                      ),
+                      replacement: Icon(
+                        Icons.add_circle_outline,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget buildListOfBeacons(
       List<BeaconModel> beacons, List<BeaconModel> savedbeacons) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 20, right: 16),
+          padding: const EdgeInsets.only(top: 20, right: 16, left: 10),
           shrinkWrap: true,
           itemCount: beacons.length,
           itemBuilder: (BuildContext context, int index) {
@@ -304,6 +413,7 @@ class _BeaconPageState extends State<BeaconPage> {
                     setState(() {
                       _isChecked[index] = value!;
                       _dashBoardNotifer!.pauseScanning_15();
+                      print(_isChecked);
                       print(_beaconRepositoryNotifier!
                           .savedBeacons[0].proximityUUID);
                     });
@@ -319,12 +429,15 @@ class _BeaconPageState extends State<BeaconPage> {
                       Text("Distance:${beacons[index].accuracy} M")
                     ],
                   ),
-
-                  trailing: Visibility(
-                    visible: compareTwoBeaconList(savedbeacons, index, beacons),
-                    child: Icon(
-                      Icons.star,
-                      color: Colors.yellow,
+                  trailing: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Visibility(
+                      visible:
+                          compareTwoBeaconList(savedbeacons, index, beacons),
+                      child: Icon(
+                        Icons.star,
+                        color: Colors.yellow,
+                      ),
                     ),
                   ),
                 ),
@@ -338,19 +451,8 @@ class _BeaconPageState extends State<BeaconPage> {
 
   //add beacon to the trusted beacon List
   Future<void> addBeaconToTrustList(
-      List<BeaconModel> beacons, List<bool> checkList) async {
-    List<BeaconModel?> selectedBeacons = List.generate(checkList.length,
-            (index) => checkList[index] ? beacons[index] : null)
-        .where((element) => element != null)
-        .toList();
-    print(selectedBeacons);
-    List<BeaconModel> beaconsToAdd = <BeaconModel>[];
-    selectedBeacons.forEach((element) {
-      beaconsToAdd.add(element!);
-    });
-    beaconsToAdd.forEach((element) {
-      _beaconRepositoryNotifier!.addBeaconToDataBase(element, context);
-    });
+      List<BeaconModel> beacons, int index) async {
+    _beaconRepositoryNotifier!.addBeaconToDataBase(beacons[index], context);
   }
 
   void _onButtonPressed(int index, List<BeaconModel> beaconList) {
@@ -417,5 +519,59 @@ class _BeaconPageState extends State<BeaconPage> {
       }
     }
     return result;
+  }
+
+  void _onButtonPressedAdd(int index, List<BeaconModel> beaconList) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            color: const Color(0xFF737373),
+            height: 115,
+            child: Container(
+              child: _buildBottomNavigationMenuAdd(index, beaconList),
+              decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Column _buildBottomNavigationMenuAdd(int index, List<BeaconModel> beaconList) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: const Text(
+            'Add',
+            style: TextStyle(color: Colors.blueAccent),
+          ),
+          onTap: () {
+            // Delete function using the current index
+            addBeaconToTrustList(beaconList, index);
+            setState(() {
+              //beaconList.removeAt(index);
+              isEditing = false;
+            });
+            Navigator.pop(context);
+          },
+        ),
+        const Divider(
+          color: Colors.grey,
+          height: 0.8,
+          thickness: 1,
+        ),
+        ListTile(
+          title: const Text('Cancel'),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
   }
 }
