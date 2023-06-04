@@ -88,8 +88,7 @@ class _ChatState extends State<Chat> {
               children: [
                 Column(
                   children: [
-                    ListOfHistory[index].description!=null? Align
-                    (alignment: Alignment.centerLeft,child: Text("Description: ${ListOfHistory[index].description}")) : Text("You didn't add any description on this History"),
+                    ListOfHistory[index].description!=null? Text("Description: ${ListOfHistory[index].description}") : Text("You didn't add any description on this History"),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: TextField(
