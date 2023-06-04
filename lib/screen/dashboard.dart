@@ -400,7 +400,7 @@ class _DashboardState extends State<Dashboard> {
             height: 40,
           ),
           const Padding(
-            padding: EdgeInsets.only(top: 20, right: 15, left: 15, bottom: 35),
+            padding: EdgeInsets.only(top: 20, right: 15, left: 15, bottom: 28),
             child: Text(
               "The phone acts as a beacon, it automatically triggers silent mode on other users' phones when detected.",
               style: TextStyle(
@@ -411,6 +411,20 @@ class _DashboardState extends State<Dashboard> {
             padding: EdgeInsets.only(left: 15.0, bottom: 10.0, right: 15),
             child: Column(
               children: const [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Share and let Other Users to Connect",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                  height: 5,
+                ),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -452,14 +466,14 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 SizedBox(
                   width: 15,
-                  height: 5,
+                  height: 15,
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Share and let Other Users to Connect, Remainder: Background execution limits in Android 8 restrict beacon transmission to around 10 minutes before it automatically stops. The current version of the Application does not support Foreground Services to bypass this limitation.",
+                    "Remainder: Background execution limits in Android 8 restrict beacon transmission to around 10 minutes before it automatically stops. The current version of the Application does not support Foreground Services to bypass this limitation.",
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: Color.fromARGB(255, 111, 110, 110),
                       fontSize: 14.0,
                     ),
                   ),
