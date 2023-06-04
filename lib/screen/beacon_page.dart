@@ -83,7 +83,7 @@ class _BeaconPageState extends State<BeaconPage> {
                             height: 240, // Set a fixed height for the container
                             child: buildListOfBeacons(
                                 scannedBeaconForBeaconScannedPage,
-                                _beaconRepositoryNotifier.savedBeacons),
+                                _beaconRepositoryNotifier!.savedBeacons),
                           )
                         ],
                       );

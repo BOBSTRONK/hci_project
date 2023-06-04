@@ -16,8 +16,9 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
+  String userInput = '';
   List<History> ListOfHistory = <History>[];
-    bool isTextFieldVisible = false;
+  bool isTextFieldVisible = false;
   TextEditingController textFieldController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -28,16 +29,6 @@ class _ChatState extends State<Chat> {
       ],
       child: _build(),
     );
-  }
-
-    void toggleTextFieldVisibility() {
-    setState(() {
-      isTextFieldVisible = !isTextFieldVisible;
-      if (!isTextFieldVisible) {
-        // Clear the text field when hiding it
-        textFieldController.clear();
-      }
-    });
   }
 
   @override
@@ -75,7 +66,7 @@ class _ChatState extends State<Chat> {
         itemCount: ListOfHistory.length,
         itemBuilder: (BuildContext context, int index) {
           return Card(
-            child: ListTile(
+            child: ExpansionTile(
               shape: RoundedRectangleBorder(
                   side: BorderSide(width: 2),
                   borderRadius: BorderRadius.circular(20)),
@@ -93,9 +84,27 @@ class _ChatState extends State<Chat> {
                   ),
                 ),
               ),
-              trailing: IconButton(icon: Icon(Icons.arrow_circle_down),onPressed: (){
-                toggleTextFieldVisibility;
-              },),
+              trailing: Icon(Icons.arrow_circle_down),
+              children: [
+                Column(
+                  children: [
+                    ListOfHistory[index].description!=null? Align
+                    (alignment: Alignment.centerLeft,child: Text("Description: ${ListOfHistory[index].description}")) : Text("You didn't add any description on this History"),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        onChanged: (value){
+                          setState(() {
+                            userInput=value;
+                          });
+                        },
+                        
+                        decoration: InputDecoration(labelText: 'Enter Your description',enabledBorder:UnderlineInputBorder() ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
           );
         });
