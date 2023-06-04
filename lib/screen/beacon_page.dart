@@ -19,8 +19,6 @@ class _BeaconPageState extends State<BeaconPage> {
   BeaconRepositoryNotifier? _beaconRepositoryNotifier;
   DashBoardNotifer? _dashBoardNotifer;
   bool isEditing = false;
-  //late List<BeaconModel> ListOfTrustedBeacons;
-  //List<bool> _isChecked = <bool>[];
 
   final fireStore =
       FirebaseFirestore.instance.collection("Beacons").snapshots();
@@ -350,37 +348,30 @@ class _BeaconPageState extends State<BeaconPage> {
           itemCount: beacons.length,
           itemBuilder: (BuildContext context, int index) {
             var result = compareTwoBeaconList(savedbeacons, index, beacons);
-            return GestureDetector(
-              onTap: () {
-                _dashBoardNotifer!.pauseScanning_15();
-              },
-              child: Card(
-                child: ListTile(
-                  onTap: () {
-                    if (result) {
-                      _onButtonPressed(index, beacons);
-                    } else {
+            return Visibility(
+              visible: !result,
+              child: GestureDetector(
+                onTap: () {
+                  _dashBoardNotifer!.pauseScanning_15();
+                },
+                child: Card(
+                  child: ListTile(
+                    onTap: () {
                       _onButtonPressedAdd(index, beacons);
-                    }
-                  },
-                  leading: Image.asset("images/Beacon+Synergy.png"),
-                  title: Text(beacons[index].proximityUUID),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Major:${beacons[index].major.toString()}"),
-                      Text("Minor:${beacons[index].minor.toString()}"),
-                      Text("Distance:${beacons[index].accuracy} M")
-                    ],
-                  ),
-                  trailing: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Visibility(
-                      visible: result,
+                    },
+                    leading: Image.asset("images/Beacon+Synergy.png"),
+                    title: Text(beacons[index].proximityUUID),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Major:${beacons[index].major.toString()}"),
+                        Text("Minor:${beacons[index].minor.toString()}"),
+                        Text("Distance:${beacons[index].accuracy} M")
+                      ],
+                    ),
+                    trailing: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Icon(
-                        Icons.delete_outline,
-                      ),
-                      replacement: Icon(
                         Icons.add_circle_outline,
                       ),
                     ),
@@ -409,16 +400,6 @@ class _BeaconPageState extends State<BeaconPage> {
               },
               child: Card(
                 child: ListTile(
-                  /*onChange: (value) {
-                    setState(() {
-                      _isChecked[index] = value!;
-                      _dashBoardNotifer!.pauseScanning_15();
-                      print(_isChecked);
-                      print(_beaconRepositoryNotifier!
-                          .savedBeacons[0].proximityUUID);
-                    });
-                  },*/
-                  //value: _isChecked[index],
                   leading: Image.asset("images/Beacon+Synergy.png"),
                   title: Text(beacons[index].proximityUUID),
                   subtitle: Column(
@@ -542,7 +523,8 @@ class _BeaconPageState extends State<BeaconPage> {
         });
   }
 
-  Column _buildBottomNavigationMenuAdd(int index, List<BeaconModel> beaconList) {
+  Column _buildBottomNavigationMenuAdd(
+      int index, List<BeaconModel> beaconList) {
     return Column(
       children: <Widget>[
         ListTile(
@@ -554,7 +536,8 @@ class _BeaconPageState extends State<BeaconPage> {
             // Delete function using the current index
             addBeaconToTrustList(beaconList, index);
             setState(() {
-              //beaconList.removeAt(index);
+              _beaconRepositoryNotifier!.savedBeacons.add(beaconList[index]);
+              beaconList.removeAt(index);
               isEditing = false;
             });
             Navigator.pop(context);
