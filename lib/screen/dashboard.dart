@@ -32,11 +32,11 @@ class _DashboardState extends State<Dashboard> {
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool? isGranted;
   bool isInitialized = false;
+  bool isBecomeBeacon = false;
   int? state;
   double? _deviceHeight, _deviceWidth;
   Timer? timer;
   late final myDashBoardNotifier;
-  bool? phoneBecomeBeacon;
 
   @override
   Widget build(BuildContext context) {
@@ -67,16 +67,20 @@ class _DashboardState extends State<Dashboard> {
                 selector: (context, dashBoardNotifier) =>
                     dashBoardNotifier.status,
                 builder: (_, status, child) {
-                  if (status == 1) {
-                    status = 1;
-                    //startTimer();
-                    print("the status is ${status}");
-                    return ConnectedView();
-                  } else if(status ==0){
-                    print("the status is ${status}");
-                    return ScanningView();
-                  }else{
+                  if (isBecomeBeacon) {
                     return BecomeBeaconView();
+                  } else {
+                    if (status == 1) {
+                      status = 1;
+                      //startTimer();
+                      print("the status is ${status}");
+                      return ConnectedView();
+                    } else if (status == 0) {
+                      print("the status is ${status}");
+                      return ScanningView();
+                    } else {
+                      return Container();
+                    }
                   }
                 },
               ),
@@ -186,6 +190,7 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
+                  isBecomeBeacon = true;
                   _dashBoardNotifier!.becomeBeacon();
                 },
               ),
@@ -276,7 +281,7 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
-                  phoneBecomeBeacon = true;
+                  isBecomeBeacon = true;
                   becomeBeacon();
                 },
               ),
@@ -297,7 +302,7 @@ class _DashboardState extends State<Dashboard> {
                   fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
             ),
           ),
-           Padding(
+          Padding(
             padding: EdgeInsets.only(left: 15.0, bottom: 10.0, right: 15),
             child: Column(
               children: const [
@@ -376,7 +381,7 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
-                  phoneBecomeBeacon = false;
+                  isBecomeBeacon = false;
                 },
               ),
             ),
@@ -390,13 +395,44 @@ class _DashboardState extends State<Dashboard> {
               width: _deviceWidth! * 0.85,
             ),
           ),
-          SizedBox(height: 40,),
+          SizedBox(
+            height: 40,
+          ),
           const Padding(
             padding: EdgeInsets.only(top: 20, right: 15, left: 15, bottom: 35),
             child: Text(
               "The phone acts as a beacon, it automatically triggers silent mode on other users' phones when detected.",
               style: TextStyle(
                   fontSize: 16, color: Color.fromRGBO(111, 110, 110, 1)),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 15.0, bottom: 10.0, right: 15),
+            child: Column(
+              children: const [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Your UUID:  ",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Share and let Other Users to Connect.",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ],
