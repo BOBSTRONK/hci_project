@@ -17,6 +17,7 @@ enum Status { connected, selfBeacon, scanning }
 
 class DashBoardNotifer extends ChangeNotifier {
   DashBoardNotifer(this.context) {
+    getRingerStatus();
     _startScanningBeacon();
     periodicallyScan();
   }
@@ -36,6 +37,7 @@ class DashBoardNotifer extends ChangeNotifier {
   bool flag1 = false;
   bool flag2 = false;
   Duration duration = Duration();
+  RingerModeStatus? ringerStatus;
 
   Timer? timer_1;
   Timer? timer_2;
@@ -81,6 +83,7 @@ class DashBoardNotifer extends ChangeNotifier {
     } else if (_status != newValue && newValue == 0) {
       print("the duration in seconds: ${duration.inSeconds}");
       _status = newValue;
+
       stopTimer();
     }
   }
@@ -185,7 +188,7 @@ class DashBoardNotifer extends ChangeNotifier {
   }
 
   //stop the timer
-  void stopTimer() {
+  Future<void> stopTimer() async {
     print("the duration of timer: ${duration.inSeconds}");
     end_Time = DateTime.now();
     History history = History(
@@ -195,6 +198,8 @@ class DashBoardNotifer extends ChangeNotifier {
     beaconRepositoryNotifier.addHistoryDataBase(history, context);
     duration = Duration();
     timer_2!.cancel();
+    await SoundMode.setSoundMode(ringerStatus!);
+    FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL	);
     notifyListeners();
   }
 
@@ -238,6 +243,12 @@ class DashBoardNotifer extends ChangeNotifier {
   @override
   void dispose() {
     // TODO: implement dispose
+  }
+
+  Future<void> getRingerStatus() async {
+    RingerModeStatus ringerStatu_back = await SoundMode.ringerModeStatus;
+    ringerStatus = ringerStatu_back;
+    print("The ringerStatus is: ${ringerStatu_back}");
   }
 
   void pauseScanning_15() {

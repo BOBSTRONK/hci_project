@@ -82,7 +82,7 @@ class _ChatState extends State<Chat> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${DateFormat('HH:MM').format(ListOfHistory[index].startTime)} ----- ${durationInMinutes(ListOfHistory[index].duration)} ----- ${DateFormat('HH:MM').format(ListOfHistory[index].endTime)}  ",
+                    "${DateFormat('HH:mm').format(ListOfHistory[index].startTime)} ----- ${durationInMinutes(ListOfHistory[index].duration)} ----- ${DateFormat('HH:mm').format(ListOfHistory[index].endTime)}  ",
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 21),
                   ),
                 ),
@@ -175,7 +175,7 @@ class _ChatState extends State<Chat> {
   String durationInMinutes(int duration) {
     int minutes = (duration / 60).truncate();
     int seconds = duration % 60;
-    String minuteFormat = "$minutes:${seconds.toString().padLeft(1, "0")}";
+    String minuteFormat = "${minutes}m${seconds.toString().padLeft(1, "0")}s";
     return minuteFormat;
   }
 
