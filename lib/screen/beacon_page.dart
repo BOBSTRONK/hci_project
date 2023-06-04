@@ -20,7 +20,7 @@ class _BeaconPageState extends State<BeaconPage> {
   DashBoardNotifer? _dashBoardNotifer;
   bool isEditing = false;
   //late List<BeaconModel> ListOfTrustedBeacons;
-  List<bool> _isChecked = <bool>[];
+  //List<bool> _isChecked = <bool>[];
 
   final fireStore =
       FirebaseFirestore.instance.collection("Beacons").snapshots();
@@ -68,7 +68,8 @@ class _BeaconPageState extends State<BeaconPage> {
                       return Column(
                         children: [
                           const Padding(
-                            padding: EdgeInsets.only(top: 15, bottom: 10),
+                            padding:
+                                EdgeInsets.only(top: 15, bottom: 5, left: 10),
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
@@ -78,14 +79,20 @@ class _BeaconPageState extends State<BeaconPage> {
                               ),
                             ),
                           ),
-                          buildListOfBeacons(scannedBeaconForBeaconScannedPage),
+                          Container(
+                            height: 240, // Set a fixed height for the container
+                            child: buildListOfBeacons(
+                                scannedBeaconForBeaconScannedPage,
+                                _beaconRepositoryNotifier.savedBeacons),
+                          )
                         ],
                       );
                     } else {
                       return Column(
                         children: const [
                           Padding(
-                            padding: EdgeInsets.only(top: 15, bottom: 10),
+                            padding:
+                                EdgeInsets.only(top: 15, bottom: 10, left: 10),
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
@@ -170,8 +177,7 @@ class _BeaconPageState extends State<BeaconPage> {
                                 return Card(
                                   child: ListTile(
                                     onTap: () {
-                                      _onButtonPressed(
-                                          index, savedBeacons);
+                                      _onButtonPressed(index, savedBeacons);
                                     },
                                     trailing: Padding(
                                       padding:
@@ -279,13 +285,12 @@ class _BeaconPageState extends State<BeaconPage> {
     });
   }
 
-  Widget buildListOfBeacons(List<BeaconModel> beacons) {
-    _isChecked = List.filled(beacons.length, false);
+  Widget buildListOfBeacons(
+      List<BeaconModel> beacons, List<BeaconModel> savedbeacons) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        return ListView.separated(
+        return ListView.builder(
           padding: const EdgeInsets.only(top: 20, right: 16),
-          separatorBuilder: (_, __) => const Divider(),
           shrinkWrap: true,
           itemCount: beacons.length,
           itemBuilder: (BuildContext context, int index) {
@@ -294,21 +299,17 @@ class _BeaconPageState extends State<BeaconPage> {
                 _dashBoardNotifer!.pauseScanning_15();
               },
               child: Card(
-                child: CheckboxListTile(
-                  onChanged: (value) {
+                child: ListTile(
+                  /*onChange: (value) {
                     setState(() {
                       _isChecked[index] = value!;
                       _dashBoardNotifer!.pauseScanning_15();
-                      print(_isChecked);
                       print(_beaconRepositoryNotifier!
                           .savedBeacons[0].proximityUUID);
                     });
-                  },
-                  value: _isChecked[index],
-                  secondary: const CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: AssetImage("images/Beacon+Synergy.png"),
-                  ),
+                  },*/
+                  //value: _isChecked[index],
+                  leading: Image.asset("images/Beacon+Synergy.png"),
                   title: Text(beacons[index].proximityUUID),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,6 +318,14 @@ class _BeaconPageState extends State<BeaconPage> {
                       Text("Minor:${beacons[index].minor.toString()}"),
                       Text("Distance:${beacons[index].accuracy} M")
                     ],
+                  ),
+
+                  trailing: Visibility(
+                    visible: compareTwoBeaconList(savedbeacons, index, beacons),
+                    child: Icon(
+                      Icons.star,
+                      color: Colors.yellow,
+                    ),
                   ),
                 ),
               ),
@@ -397,5 +406,16 @@ class _BeaconPageState extends State<BeaconPage> {
         ),
       ],
     );
+  }
+
+  bool compareTwoBeaconList(List<BeaconModel> savedBeacons, int index,
+      List<BeaconModel> scannedBeacons) {
+    bool result = false;
+    for (var i = 0; i < savedBeacons.length; i++) {
+      if (scannedBeacons[index] == savedBeacons[i]) {
+        result = true;
+      }
+    }
+    return result;
   }
 }
