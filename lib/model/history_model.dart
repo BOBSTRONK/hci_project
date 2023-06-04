@@ -25,10 +25,9 @@ class History {
       DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data();
     return History(
-        startTime: data!["startTime"],
-        endTime: data["endTime"],
+        startTime: DateTime.parse(data!["startTime"]),
+        endTime: DateTime.parse(data["endTime"]),
         duration: data["duration"],
-
         id: document.id,
         description: data["description"],);
 

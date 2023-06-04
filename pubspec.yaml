@@ -45,6 +45,7 @@ dependencies:
   sound_mode: ^2.0.2
   permission_handler: ^10.2.0
   flutter_dnd: ^0.1.4+1
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

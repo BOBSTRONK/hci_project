@@ -8,6 +8,7 @@ import 'package:flutter_beacon/flutter_beacon.dart';
 class BeaconRepositoryNotifier extends ChangeNotifier {
     BeaconRepositoryNotifier() {
     getBeaconsDetails();
+    getHistoryFromDataBase();
   }
   final _db = FirebaseFirestore.instance;
   List<BeaconModel> savedBeacons = <BeaconModel>[];
@@ -39,6 +40,10 @@ class BeaconRepositoryNotifier extends ChangeNotifier {
         .catchError((error, stackTrace) {
       print(error);
     });
+  }
+
+  Future<void> updateHistoryDesc(History history)async{
+    await _db.collection("History").doc(history.id).update(history.toJson());
   }
 
   Future<List<BeaconModel>> getBeaconsDetails()async{
