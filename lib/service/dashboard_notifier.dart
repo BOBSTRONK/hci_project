@@ -258,9 +258,10 @@ class DashBoardNotifer extends ChangeNotifier {
             .setUUID("39ED98FF-2900-441A-802F-9C398FC199D2")
             .setMajorId(1)
             .setMinorId(100)
+            .setLayout('m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24')
+            .setManufacturerId(0x004c)
             .start();
-        status= 3;
-        
+
         print("i am a beacon now");
         break;
       case bb.BeaconStatus.notSupportedMinSdk:
@@ -273,6 +274,11 @@ class DashBoardNotifer extends ChangeNotifier {
         // Either your chipset or driver is incompatible
         break;
     }
+  }
+
+  void stopBroadcast() async {
+    beaconBroadcast.stop();
+    print("stop broadcasting");
   }
 
   void startScanningBeaconPeriodically() {

@@ -382,6 +382,7 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 onTap: () {
                   isBecomeBeacon = false;
+                  _dashBoardNotifier!.stopBroadcast();
                 },
               ),
             ),
@@ -413,7 +414,7 @@ class _DashboardState extends State<Dashboard> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Your UUID:  ",
+                    "Your UUID: 39ED98FF-2900-441A-802F-9C398FC199D2 ",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 16.0,
@@ -421,11 +422,42 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                 ),
-                SizedBox(width: 15),
+                SizedBox(
+                  height: 5,
+                ),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Share and let Other Users to Connect.",
+                    "Your MajorId: 1 ",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Your MinorId: 100 ",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                  height: 5,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Share and let Other Users to Connect, Remainder: Background execution limits in Android 8 restrict beacon transmission to around 10 minutes before it automatically stops. The current version of the Application does not support Foreground Services to bypass this limitation.",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 14.0,
