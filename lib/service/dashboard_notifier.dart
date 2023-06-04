@@ -8,6 +8,7 @@ import 'package:flutter_dnd/flutter_dnd.dart';
 import 'package:sound_mode/permission_handler.dart';
 import 'package:sound_mode/sound_mode.dart';
 import 'package:sound_mode/utils/ringer_mode_statuses.dart';
+import 'package:beacon_broadcast/beacon_broadcast.dart' as bb;
 
 import '../model/beacon_model.dart';
 import 'beacon_repository.dart';
@@ -19,7 +20,7 @@ class DashBoardNotifer extends ChangeNotifier {
     _startScanningBeacon();
     periodicallyScan();
   }
-
+  bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
   bool loading = false;
   List<List<BeaconModel>> scannedBeacons = <List<BeaconModel>>[];
   List<BeaconModel> scannedBeaconForBeaconScannedPage = <BeaconModel>[];
@@ -35,6 +36,7 @@ class DashBoardNotifer extends ChangeNotifier {
   bool flag1 = false;
   bool flag2 = false;
   Duration duration = Duration();
+
   Timer? timer_1;
   Timer? timer_2;
   List<bool> isCheckd = <bool>[];
@@ -244,6 +246,33 @@ class DashBoardNotifer extends ChangeNotifier {
     Timer(const Duration(seconds: 15), () {
       _streamRanging.resume();
     });
+  }
+
+  Future<void> becomeBeacon() async {
+    bb.BeaconStatus transmissionSupportStatus =
+        await beaconBroadcast.checkTransmissionSupported();
+    switch (transmissionSupportStatus) {
+      case bb.BeaconStatus.supported:
+        // You're good to go, you can advertise as a beacon
+        beaconBroadcast
+            .setUUID("39ED98FF-2900-441A-802F-9C398FC199D2")
+            .setMajorId(1)
+            .setMinorId(100)
+            .start();
+        status= 3;
+        
+        print("i am a beacon now");
+        break;
+      case bb.BeaconStatus.notSupportedMinSdk:
+        // Your Android system version is too low (min. is 21)
+        break;
+      case bb.BeaconStatus.notSupportedBle:
+        // Your device doesn't support BLE
+        break;
+      case bb.BeaconStatus.notSupportedCannotGetAdvertiser:
+        // Either your chipset or driver is incompatible
+        break;
+    }
   }
 
   void startScanningBeaconPeriodically() {

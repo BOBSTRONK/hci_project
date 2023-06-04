@@ -35,12 +35,15 @@ class _ChatState extends State<Chat> {
   Widget _build() {
     return Builder(builder: (context) {
       _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
-      return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('History'),
+      return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text('History'),
+          ),
+          body: buildListOfHistory(),
         ),
-        body: buildListOfHistory(),
       );
     });
   }
@@ -88,17 +91,77 @@ class _ChatState extends State<Chat> {
               children: [
                 Column(
                   children: [
-                    ListOfHistory[index].description!=null? Text("Description: ${ListOfHistory[index].description}") : Text("You didn't add any description on this History"),
+                    ListOfHistory[index].description != null
+                        ? Text(
+                            "Description: ${ListOfHistory[index].description}",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          )
+                        : Text("You didn't add any description on this History",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: TextField(
-                        onChanged: (value){
-                          setState(() {
-                            userInput=value;
-                          });
-                        },
-                        
-                        decoration: InputDecoration(labelText: 'Enter Your description',enabledBorder:UnderlineInputBorder() ),
+                      padding: EdgeInsets.only(top: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              onChanged: (value) {
+                                if (value.isNotEmpty) {
+                                  setState(() {});
+                                } else {
+                                  setState(() {});
+                                }
+                              },
+                              controller: textFieldController,
+                              textInputAction: TextInputAction.newline,
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              decoration: InputDecoration(
+                                  labelText: 'Enter Your description',
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(90)),
+                                    borderSide: MediaQuery.of(context)
+                                                .platformBrightness ==
+                                            Brightness.light
+                                        ? BorderSide.none
+                                        : BorderSide(
+                                            color:
+                                                Colors.grey.withOpacity(0.3)),
+                                  ),
+                                  filled: true,
+                                  focusedBorder: UnderlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(90)),
+                                      borderSide: MediaQuery.of(context)
+                                                  .platformBrightness ==
+                                              Brightness.light
+                                          ? BorderSide.none
+                                          : BorderSide(
+                                              color: Colors.grey
+                                                  .withOpacity(0.3)))),
+                            ),
+                          ),
+                          textFieldController.text.trim().isEmpty
+                              ? SizedBox()
+                              : Padding(
+                                  padding: EdgeInsets.only(left: 15),
+                                  child: SizedBox(
+                                    child: RawMaterialButton(
+                                      fillColor: Colors.red,
+                                      shape: const CircleBorder(),
+                                      onPressed: () {
+                                        uploadHistory(ListOfHistory[index]);
+                                      },
+                                      elevation: 5.0,
+                                      child: Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ))
+                        ],
                       ),
                     ),
                   ],
@@ -114,5 +177,21 @@ class _ChatState extends State<Chat> {
     int seconds = duration % 60;
     String minuteFormat = "$minutes:${seconds.toString().padLeft(1, "0")}";
     return minuteFormat;
+  }
+
+  void uploadHistory(History history) {
+    if (textFieldController.text.trim().isEmpty) {
+      return;
+    }
+
+    History updateHistory = History(
+        id: history.id,
+        startTime: history.startTime,
+        endTime: history.endTime,
+        duration: history.duration,
+        description: textFieldController.text);
+
+    _beaconRepositoryNotifier!.updateHistoryDesc(updateHistory);
+    textFieldController.clear();
   }
 }

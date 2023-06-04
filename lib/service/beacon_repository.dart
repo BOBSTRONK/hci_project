@@ -44,6 +44,8 @@ class BeaconRepositoryNotifier extends ChangeNotifier {
 
   Future<void> updateHistoryDesc(History history)async{
     await _db.collection("History").doc(history.id).update(history.toJson());
+    await getHistoryFromDataBase();
+    notifyListeners();
   }
 
   Future<List<BeaconModel>> getBeaconsDetails()async{

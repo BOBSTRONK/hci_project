@@ -42,6 +42,7 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     _deviceHeight = MediaQuery.of(context).size.height;
     _deviceWidth = MediaQuery.of(context).size.width;
+    _dashBoardNotifier = context.watch<DashBoardNotifer>();
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -71,9 +72,11 @@ class _DashboardState extends State<Dashboard> {
                     //startTimer();
                     print("the status is ${status}");
                     return ConnectedView();
-                  } else {
+                  } else if(status ==0){
                     print("the status is ${status}");
                     return ScanningView();
+                  }else{
+                    return BecomeBeaconView();
                   }
                 },
               ),
@@ -183,8 +186,7 @@ class _DashboardState extends State<Dashboard> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 onTap: () {
-                  phoneBecomeBeacon = true;
-                  becomeBeacon();
+                  _dashBoardNotifier!.becomeBeacon();
                 },
               ),
             ),
