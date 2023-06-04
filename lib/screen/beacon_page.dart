@@ -224,6 +224,8 @@ class _BeaconPageState extends State<BeaconPage> {
                           Container(
                             height: 240, // Set a fixed height for the container
                             child: ListView.builder(
+                              padding: const EdgeInsets.only(
+                                  top: 10, right: 16, left: 10),
                               itemCount: savedBeacons.length,
                               shrinkWrap: true,
                               itemBuilder: (BuildContext context, int index) {
@@ -301,6 +303,8 @@ class _BeaconPageState extends State<BeaconPage> {
                           Container(
                             height: 240, // Set a fixed height for the container
                             child: ListView.builder(
+                              padding: const EdgeInsets.only(
+                                  top: 10, right: 16, left: 10),
                               itemCount: savedBeacons.length,
                               shrinkWrap: true,
                               itemBuilder: (BuildContext context, int index) {
@@ -343,7 +347,7 @@ class _BeaconPageState extends State<BeaconPage> {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 20, right: 16, left: 10),
+          padding: const EdgeInsets.only(top: 10, right: 16, left: 10),
           shrinkWrap: true,
           itemCount: beacons.length,
           itemBuilder: (BuildContext context, int index) {
@@ -390,7 +394,7 @@ class _BeaconPageState extends State<BeaconPage> {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 20, right: 16, left: 10),
+          padding: const EdgeInsets.only(top: 10, right: 16, left: 10),
           shrinkWrap: true,
           itemCount: beacons.length,
           itemBuilder: (BuildContext context, int index) {
