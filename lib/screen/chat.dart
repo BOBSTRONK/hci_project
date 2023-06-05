@@ -1,3 +1,4 @@
+import 'package:BeaconGuard/service/dashboard_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:BeaconGuard/screen/beacon_scanned_page.dart';
 import 'package:BeaconGuard/model/history_model.dart';
@@ -7,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../service/beacon_repository.dart';
 
+
+//done for the change
 class Chat extends StatefulWidget {
   const Chat({super.key});
 
@@ -15,7 +18,7 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  BeaconRepositoryNotifier? _beaconRepositoryNotifier;
+  DashBoardNotifer? _beaconRepositoryNotifier;
   String userInput = '';
   List<History> ListOfHistory = <History>[];
   bool isTextFieldVisible = false;
@@ -24,8 +27,8 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<BeaconRepositoryNotifier>(
-            create: (BuildContext context) => BeaconRepositoryNotifier())
+        ChangeNotifierProvider<DashBoardNotifer>(
+            create: (BuildContext context) => DashBoardNotifer(context))
       ],
       child: _build(),
     );
@@ -34,7 +37,7 @@ class _ChatState extends State<Chat> {
   @override
   Widget _build() {
     return Builder(builder: (context) {
-      _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
+      _beaconRepositoryNotifier = context.watch<DashBoardNotifer>();
       return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(

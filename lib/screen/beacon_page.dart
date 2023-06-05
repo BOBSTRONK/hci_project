@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/beacon_model.dart';
 import '../service/beacon_repository.dart';
 
+//done the change
 class BeaconPage extends StatefulWidget {
   const BeaconPage({super.key});
 
@@ -16,8 +17,7 @@ class BeaconPage extends StatefulWidget {
 }
 
 class _BeaconPageState extends State<BeaconPage> {
-  BeaconRepositoryNotifier? _beaconRepositoryNotifier;
-  DashBoardNotifer? _dashBoardNotifer;
+  DashBoardNotifer? _beaconRepositoryNotifier;
   bool isEditing = false;
 
   final fireStore =
@@ -28,8 +28,8 @@ class _BeaconPageState extends State<BeaconPage> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<BeaconRepositoryNotifier>(
-            create: (BuildContext context) => BeaconRepositoryNotifier())
+        ChangeNotifierProvider<DashBoardNotifer>(
+            create: (BuildContext context) => DashBoardNotifer(context))
       ],
       child: _build(),
     );
@@ -37,8 +37,7 @@ class _BeaconPageState extends State<BeaconPage> {
 
   Widget _build() {
     return Builder(builder: (context) {
-      _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
-      _dashBoardNotifer = context.watch<DashBoardNotifer>();
+      _beaconRepositoryNotifier = context.watch<DashBoardNotifer>();
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setstate) {
           return Scaffold(
@@ -356,7 +355,7 @@ class _BeaconPageState extends State<BeaconPage> {
               visible: !result,
               child: GestureDetector(
                 onTap: () {
-                  _dashBoardNotifer!.pauseScanning_15();
+                  _beaconRepositoryNotifier!.pauseScanning_15();
                 },
                 child: Card(
                   child: ListTile(
@@ -400,7 +399,7 @@ class _BeaconPageState extends State<BeaconPage> {
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
-                _dashBoardNotifer!.pauseScanning_15();
+                _beaconRepositoryNotifier!.pauseScanning_15();
               },
               child: Card(
                 child: ListTile(

@@ -1,3 +1,4 @@
+import 'package:BeaconGuard/service/dashboard_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:BeaconGuard/screen/beacon_scanned_page.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../model/beacon_model.dart';
 import '../service/beacon_repository.dart';
 import '../service/beacon_scan_page_notifier.dart';
 
+//done for the change
 class BeaconList extends StatefulWidget {
   const BeaconList({super.key});
 
@@ -16,22 +18,18 @@ class BeaconList extends StatefulWidget {
 }
 
 class _BeaconListState extends State<BeaconList> {
-  BeaconRepositoryNotifier? _beaconRepositoryNotifier;
+  DashBoardNotifer? _beaconRepositoryNotifier;
   bool isEditing = false;
   late List<BeaconModel> ListOfTrustedBeacons;
   List<bool> _isChecked = <bool>[];
   List<int> indexes = [];
 
-  final fireStore =
-      FirebaseFirestore.instance.collection("Beacons").snapshots();
-  CollectionReference ref = FirebaseFirestore.instance.collection("Beacons");
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<BeaconRepositoryNotifier>(
-            create: (BuildContext context) => BeaconRepositoryNotifier())
+        ChangeNotifierProvider<DashBoardNotifer>(
+            create: (BuildContext context) => DashBoardNotifer(context))
       ],
       child: _build(),
     );
@@ -40,7 +38,8 @@ class _BeaconListState extends State<BeaconList> {
   Widget _build() {
     return Builder(
       builder: (context) {
-        _beaconRepositoryNotifier = context.watch<BeaconRepositoryNotifier>();
+        _beaconRepositoryNotifier = context.watch<DashBoardNotifer>();
+        ListOfTrustedBeacons = _beaconRepositoryNotifier!.savedBeacons;
         Widget? body;
         body = buildListOfBeacons();
 
@@ -66,7 +65,6 @@ class _BeaconListState extends State<BeaconList> {
   }
 
   Widget buildListOfBeacons() {
-    ListOfTrustedBeacons = _beaconRepositoryNotifier!.savedBeacons;
     _isChecked = List.filled(ListOfTrustedBeacons.length, false);
 
     if (ListOfTrustedBeacons.isEmpty) {
@@ -218,10 +216,9 @@ class _BeaconListState extends State<BeaconList> {
                       ),
                       onTap: () {
                         // Delete function using the current index
-                        ref
-                            .doc(beaconList[currentIndex].id.toString())
-                            .delete();
-
+                        _beaconRepositoryNotifier!
+                            .deleteBeaconFromTrustedBeacon(
+                                beaconList[currentIndex]);
                         setState(() {
                           // Remove the index from the list
                           indexes.removeAt(index);

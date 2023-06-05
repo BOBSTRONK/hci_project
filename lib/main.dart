@@ -69,5 +69,6 @@ class MyApp extends StatelessWidget {
 Future<bool> checkOnboardingStatus() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
+  print(onboardingCompleted);
   return onboardingCompleted;
 }

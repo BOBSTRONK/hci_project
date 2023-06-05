@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:BeaconGuard/model/history_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_dnd/flutter_dnd.dart';
@@ -20,13 +21,17 @@ class DashBoardNotifer extends ChangeNotifier {
     getRingerStatus();
     _startScanningBeacon();
     periodicallyScan();
+    getBeaconsDetails();
+    getHistoryFromDataBase();
   }
   bb.BeaconBroadcast beaconBroadcast = bb.BeaconBroadcast();
+  final _db = FirebaseFirestore.instance;
+  List<BeaconModel> savedBeacons = <BeaconModel>[];
+  List<History> savedHisotry = <History>[];
   bool loading = false;
   List<List<BeaconModel>> scannedBeacons = <List<BeaconModel>>[];
   List<BeaconModel> scannedBeaconForBeaconScannedPage = <BeaconModel>[];
-  BeaconRepositoryNotifier beaconRepositoryNotifier =
-      BeaconRepositoryNotifier();
+
   BuildContext context;
   bool isPaused = false;
   bool? isGranted;
@@ -45,6 +50,8 @@ class DashBoardNotifer extends ChangeNotifier {
   late Stream _beaconStream;
   late StreamSubscription<RangingResult> _streamRanging;
 
+ 
+
   Future<void> InitBeaconPermission() async {
     try {
       // if you want to manage manual checking about the required permissions
@@ -59,7 +66,7 @@ class DashBoardNotifer extends ChangeNotifier {
 
   void periodicallyScan() {
     timer_1 = Timer.periodic(Duration(seconds: 10), (timer) {
-      SetToSilentMode(beaconRepositoryNotifier.savedBeacons, context);
+      SetToSilentMode(savedBeacons, context);
     });
   }
 
@@ -147,6 +154,64 @@ class DashBoardNotifer extends ChangeNotifier {
     );
   }
 
+  void addBeaconToDataBase(BeaconModel beacon, BuildContext context) async {
+    // addding item into the collection called Beacons, if the collection
+    // is not created yet, then it will create it and then do the adding operation.
+    await _db
+        .collection("Beacons")
+        .add(beacon.toJson())
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("The beacon has been successfuly added!"))))
+        .catchError((error, stackTrace) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("There is an error here, Something went wrong")));
+    });
+   getBeaconsDetails();
+    notifyListeners();
+  }
+
+  void addHistoryDataBase(History history, BuildContext context) async {
+    // addding item into the collection called Beacons, if the collection
+    // is not created yet, then it will create it and then do the adding operation.
+    await _db.collection("History").add(history.toJson()).whenComplete(() {
+      print("add ${history.duration} to the history database");
+    }).catchError((error, stackTrace) {
+      print(error);
+    });
+  }
+
+  Future<void> deleteBeaconFromTrustedBeacon(BeaconModel beacon) async {
+    await _db.collection("Beacons").doc(beacon.id).delete();
+     getBeaconsDetails();
+    notifyListeners();
+  }
+
+  Future<void> updateHistoryDesc(History history) async {
+    await _db.collection("History").doc(history.id).update(history.toJson());
+   getHistoryFromDataBase();
+    notifyListeners();
+  }
+
+  Future<List<BeaconModel>> getBeaconsDetails() async {
+    final snapshot = await _db.collection("Beacons").get();
+    final beaconList =
+        snapshot.docs.map((e) => BeaconModel.fromSnapShot(e)).toList();
+    savedBeacons = beaconList;
+    print('savedBeacons changed in DashBoardNotifier: ${savedBeacons}');
+    notifyListeners();
+
+    return beaconList;
+  }
+
+  Future<List<History>> getHistoryFromDataBase() async {
+    final snapshot = await _db.collection("History").get();
+    final historyList =
+        snapshot.docs.map((e) => History.fromSnapShot(e)).toList();
+    savedHisotry = historyList;
+    notifyListeners();
+    return historyList;
+  }
+
   Widget buildTimeCard({required String time, required String header}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -195,11 +260,11 @@ class DashBoardNotifer extends ChangeNotifier {
         startTime: start_Time!,
         endTime: end_Time!,
         duration: duration.inSeconds);
-    beaconRepositoryNotifier.addHistoryDataBase(history, context);
+    addHistoryDataBase(history, context);
     duration = Duration();
     timer_2!.cancel();
     await SoundMode.setSoundMode(ringerStatus!);
-    FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL	);
+    FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL);
     notifyListeners();
   }
 
@@ -337,8 +402,8 @@ class DashBoardNotifer extends ChangeNotifier {
       BeaconScanned[counter] = List.from(bucket);
       scannedBeaconForBeaconScannedPage = List.from(bucket);
       counter = (counter + 1) % 20;
-      print(counter);
-      print(BeaconScanned);
+      // print(counter);
+      // print(BeaconScanned);
 
       scannedBeacons = BeaconScanned;
       bucket.clear();

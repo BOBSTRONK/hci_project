@@ -4,17 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 
-
 class BeaconRepositoryNotifier extends ChangeNotifier {
-    BeaconRepositoryNotifier() {
+  BeaconRepositoryNotifier() {
     getBeaconsDetails();
     getHistoryFromDataBase();
   }
   final _db = FirebaseFirestore.instance;
   List<BeaconModel> savedBeacons = <BeaconModel>[];
   List<History> savedHisotry = <History>[];
- 
-  void addBeaconToDataBase(BeaconModel beacon,BuildContext context) async {
+
+  void addBeaconToDataBase(BeaconModel beacon, BuildContext context) async {
     // addding item into the collection called Beacons, if the collection
     // is not created yet, then it will create it and then do the adding operation.
     await _db
@@ -26,40 +25,48 @@ class BeaconRepositoryNotifier extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("There is an error here, Something went wrong")));
     });
+    await getBeaconsDetails();
+    notifyListeners();
   }
 
-   void addHistoryDataBase(History history,BuildContext context) async {
+  void addHistoryDataBase(History history, BuildContext context) async {
     // addding item into the collection called Beacons, if the collection
     // is not created yet, then it will create it and then do the adding operation.
-    await _db
-        .collection("History")
-        .add(history.toJson())
-        .whenComplete((){
-          print("add ${history.duration} to the history database");
-        })
-        .catchError((error, stackTrace) {
+    await _db.collection("History").add(history.toJson()).whenComplete(() {
+      print("add ${history.duration} to the history database");
+    }).catchError((error, stackTrace) {
       print(error);
     });
   }
 
-  Future<void> updateHistoryDesc(History history)async{
+  Future<void> deleteBeaconFromTrustedBeacon(BeaconModel beacon) async {
+    await _db.collection("Beacons").doc(beacon.id).delete();
+    await getBeaconsDetails();
+    notifyListeners();
+  }
+
+  Future<void> updateHistoryDesc(History history) async {
     await _db.collection("History").doc(history.id).update(history.toJson());
     await getHistoryFromDataBase();
     notifyListeners();
   }
 
-  Future<List<BeaconModel>> getBeaconsDetails()async{
+  Future<List<BeaconModel>> getBeaconsDetails() async {
     final snapshot = await _db.collection("Beacons").get();
-    final beaconList = snapshot.docs.map((e) => BeaconModel.fromSnapShot(e)).toList();
-    savedBeacons=beaconList;
+    final beaconList =
+        snapshot.docs.map((e) => BeaconModel.fromSnapShot(e)).toList();
+    savedBeacons = beaconList;
+    print('savedBeacons changed in beaconRepositoryNotifier: ${savedBeacons}');
     notifyListeners();
+
     return beaconList;
   }
 
-    Future<List<History>> getHistoryFromDataBase()async{
+  Future<List<History>> getHistoryFromDataBase() async {
     final snapshot = await _db.collection("History").get();
-    final historyList = snapshot.docs.map((e) => History.fromSnapShot(e)).toList();
-    savedHisotry=historyList;
+    final historyList =
+        snapshot.docs.map((e) => History.fromSnapShot(e)).toList();
+    savedHisotry = historyList;
     notifyListeners();
     return historyList;
   }

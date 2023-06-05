@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../home.dart';
 import 'intro_page/intro_page_1.dart';
@@ -18,6 +19,14 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   //keep track of if we are on the last page or not
   bool onLastPage = false;
+
+  _storeOnboardInfo() async {
+    print("Shared pref called");
+    bool isViewed = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("onboardingCompleted", isViewed);
+    print("the onboarding completed is: ${prefs.getBool('onboardingCompleted')}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +78,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   onLastPage
                       ? GestureDetector(
                           onTap: () {
+                            _storeOnboardInfo();
                             //Navigator.push to the home page
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
